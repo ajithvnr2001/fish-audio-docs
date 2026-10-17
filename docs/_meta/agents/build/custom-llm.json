@@ -1,0 +1,10 @@
+{
+  "url": "https://docs.fish.audio/agents/build/custom-llm/",
+  "file": "agents/build/custom-llm.md",
+  "title": "Custom LLM - Fish Audio",
+  "method": "scrapling+scrapegraph",
+  "fetched_at": "2026-10-17T10:46:40.276185+00:00",
+  "html_len": 386363,
+  "md_len": 10547,
+  "depth": 0
+}

@@ -1,0 +1,26 @@
+{
+  "base": "https://docs.fish.audio",
+  "total_seeds": 176,
+  "sitemap_count": 175,
+  "llms_files": [
+    "https://docs.fish.audio/llms.txt",
+    "https://docs.fish.audio/llms-full.txt"
+  ],
+  "visited": 200,
+  "failed": 0,
+  "stats": {
+    "ok": 200,
+    "fail": 0,
+    "skipped_existing": 0,
+    "by_method": {},
+    "by_host": {}
+  },
+  "elapsed_sec": 5.0,
+  "out_root": "/data/opencode/fishaudio/docs",
+  "tools": [
+    "scrapling (Fetcher)",
+    "crawl4ai (AsyncWebCrawler fallback)",
+    "scrapegraph-ai (cleanup_html/convert_to_md)"
+  ],
+  "generated_at": "2026-10-17T11:05:33.267093+00:00"
+}

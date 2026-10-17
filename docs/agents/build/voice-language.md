@@ -1,0 +1,348 @@
+---
+url: https://docs.fish.audio/agents/build/voice-language/
+title: Voice & Language - Fish Audio
+method: scrapling+scrapegraph
+fetched_at: 2026-10-17T10:46:41.162773+00:00
+---
+
+# Voice & Language - Fish Audio
+
+> Source: https://docs.fish.audio/agents/build/voice-language/
+
+## On this page
+
+  * Pick a voice in the Builder
+  * Use any voice model
+  * Set the voice via API
+  * Speaking language
+  * Text-to-speech model
+  * Speech recognition model
+  * Multilingual recognition
+  * Strict language
+  * Speaking speed
+  * Expressive mode
+  * Going further
+
+
+
+Build
+
+# Voice & Language
+
+Copy pageCopy page
+
+Choose the voice your agent speaks with and the language it converses in
+
+Copy pageCopy page
+
+Your agent speaks with a voice model from the Fish Audio Voice Library: the same voices you use for text to speech. Pick one in the Builder, or set it through the API, and choose the language the agent holds conversations in.
+
+## Configuration page
+
+Where the voice and language settings live in the Builder.
+
+## Voice Library
+
+Browse public voices and manage your own.
+
+## Voice Cloning
+
+Create a custom voice, then use it here. See [Voice Cloning](https://docs.fish.audio/features/voice-cloning).
+
+## 
+
+​
+
+Pick a voice in the Builder
+
+The voice picker on the **Configuration** page has two levels: a curated list for a fast start, and the full Voice Library when you want something specific.
+
+1
+
+Open the voice selector
+
+In your agent’s **Configuration** page, open the voice card. The **Choose a voice** view shows a curated selection of voices.
+
+2
+
+Browse the full library (optional)
+
+Not seeing the right fit? Select **More voices** to open the **Select Voice** browser: the full Voice Library, with your own cloned voices under **My Voices**.
+
+3
+
+Save automatically
+
+Your selection is written to the agent’s draft configuration as soon as you pick it. Start a [preview call](https://docs.fish.audio/agents/test/preview-calls) to hear the voice in a real conversation.
+
+4
+
+Publish
+
+Draft changes don’t affect live sessions until you **Publish**. See [Versions & publishing](https://docs.fish.audio/agents/deploy/versions-publishing).
+
+## 
+
+​
+
+Use any voice model
+
+The agent’s voice is a **voice model id** (`voice_id`): the same ids used as `reference_id` in [Text to Speech](https://docs.fish.audio/features/text-to-speech). Any public voice model from the Voice Library works, including:
+
+  * **Library voices** : Ready-made public voices. Find ids in the [Voice Library](https://docs.fish.audio/features/manage-voices).
+  * **Your cloned voices** : [Clone a voice](https://docs.fish.audio/features/voice-cloning) once, then use its model id as your agent’s voice.
+
+
+
+## 
+
+​
+
+Set the voice via API
+
+Voice settings live in the `voice` section of the agent’s configuration. Patches are partial: only the fields you send change, and the result is saved to the draft:
+
+API (curl)
+    
+    
+    curl --request PATCH "https://api.fish.audio/v1/agent/agents/$AGENT_ID/config" \
+      --header "Authorization: Bearer $FISH_API_KEY" \
+      --header "Content-Type: application/json" \
+      --data '{
+        "voice": {
+          "voice_id": "802e3bc2b27e49c2995d23ef70e6ac89"
+        }
+      }'
+    
+
+`voice.speaking_language` lives in the same section and is patched the same way. As in the Builder, API edits land in the draft. Publish to roll them out.
+
+## 
+
+​
+
+Speaking language
+
+**Speaking language** sets the language for the agent’s conversations (`voice.speaking_language` on the wire). Every session converses in this language. Any of the 52 languages below can be chosen.
+
+All 52 supported languages and their codes
+
+Code| Language| Code| Language  
+---|---|---|---  
+`en`| English| `da`| Danish  
+`ja`| Japanese| `no`| Norwegian  
+`zh`| Chinese| `fi`| Finnish  
+`ko`| Korean| `et`| Estonian  
+`es`| Spanish| `lv`| Latvian  
+`fr`| French| `lt`| Lithuanian  
+`de`| German| `ca`| Catalan  
+`pt`| Portuguese| `he`| Hebrew  
+`it`| Italian| `fa`| Persian  
+`nl`| Dutch| `ur`| Urdu  
+`ar`| Arabic| `kk`| Kazakh  
+`hi`| Hindi| `ka`| Georgian  
+`id`| Indonesian| `hy`| Armenian  
+`tr`| Turkish| `bn`| Bengali  
+`ru`| Russian| `ta`| Tamil  
+`bg`| Bulgarian| `te`| Telugu  
+`sr`| Serbian| `kn`| Kannada  
+`hr`| Croatian| `mr`| Marathi  
+`cs`| Czech| `gu`| Gujarati  
+`sk`| Slovak| `pa`| Punjabi  
+`pl`| Polish| `ne`| Nepali  
+`uk`| Ukrainian| `th`| Thai  
+`ro`| Romanian| `vi`| Vietnamese  
+`hu`| Hungarian| `ms`| Malay  
+`el`| Greek| `tl`| Tagalog  
+`sv`| Swedish| `af`| Afrikaans  
+  
+The voice model and the speaking language are independent settings: picking a voice does not change the language, and vice versa. Choose a voice that sounds natural in the language you configure.
+
+Both settings can also be replaced for a single session: send `overrides.voice_id` or `overrides.language` on the session request. See [Overrides](https://docs.fish.audio/agents/deploy/authenticated-sessions#overrides).
+
+## 
+
+​
+
+Text-to-speech model
+
+**Text-to-speech model** picks the Fish Audio model that renders the agent’s voice (`voice.tts_model` on the wire). Every voice from the Voice Library works with either model.
+
+Value| Model| Status| Notes  
+---|---|---|---  
+`s2.1-pro`| S2.1 Pro| Default| The production model every agent has spoken with so far.  
+`drama-3`| Drama 3| Available| The directable model from [Drama 3](https://docs.fish.audio/features/text-to-speech/drama-3). Time to first audio is comparable to S2.1 Pro.  
+  
+Choose it with the **Text-to-speech model** selector in the Builder’s voice section, or via the API:
+
+API (curl)
+    
+    
+    curl --request PATCH "https://api.fish.audio/v1/agent/agents/$AGENT_ID/config" \
+      --header "Authorization: Bearer $FISH_API_KEY" \
+      --header "Content-Type: application/json" \
+      --data '{
+        "voice": {
+          "tts_model": "drama-3"
+        }
+      }'
+    
+
+The model applies to everything the agent speaks in voice and phone sessions. As with every voice setting, the change lands in the draft: publish to roll it out.
+
+## 
+
+​
+
+Speech recognition model
+
+**Speech recognition** picks the model that transcribes what callers say (`asr.model` on the wire). Latency is the typical wait from the caller’s last word to the transcript. The agent starts its reply after that.
+
+Value| Model| Latency| Notes  
+---|---|---|---  
+`deepgram:nova-3`| Deepgram Nova-3| ≈0.4 s| Default. Mid-call language switching covers English, Spanish, French, German, Hindi, Russian, Portuguese, Japanese, Italian, and Dutch.  
+`elevenlabs:scribe_v2_realtime`| ElevenLabs Scribe v2 Realtime| ≈0.9 s| Keyterms longer than 20 characters are ignored.  
+`elevenlabs:scribe_v2_medical`| ElevenLabs Scribe v2 Medical| ≈1.5 s| Tuned for clinical speech: medication names, anatomy, and pathology terms. Keyterms longer than 50 characters are ignored.  
+  
+Choose it with the **Speech recognition** selector in the Builder’s voice section, or via the API:
+
+API (curl)
+    
+    
+    curl --request PATCH "https://api.fish.audio/v1/agent/agents/$AGENT_ID/config" \
+      --header "Authorization: Bearer $FISH_API_KEY" \
+      --header "Content-Type: application/json" \
+      --data '{
+        "asr": {
+          "model": "elevenlabs:scribe_v2_realtime"
+        }
+      }'
+    
+
+Speech recognition applies to spoken sessions (voice calls and phone). As with every voice setting, the change lands in the draft: publish to roll it out. To use a different model for a single session, pass `overrides.asr.model` when you [create the session](https://docs.fish.audio/agents/deploy/authenticated-sessions#overrides) from your backend.
+
+## 
+
+​
+
+Multilingual recognition
+
+**Multilingual recognition** lets the agent understand callers who switch to another language partway through a conversation. With it off, speech recognition listens only for the speaking language. That is more accurate when every caller speaks the same language, and it keeps short or accented phrases from being transcribed as another language. It is off by default. Toggle it with the **Multilingual recognition** switch in the Builder’s voice section, or via the API (`asr.multilingual`, default `false`):
+
+API (curl)
+    
+    
+    curl --request PATCH "https://api.fish.audio/v1/agent/agents/$AGENT_ID/config" \
+      --header "Authorization: Bearer $FISH_API_KEY" \
+      --header "Content-Type: application/json" \
+      --data '{
+        "asr": {
+          "multilingual": true
+        }
+      }'
+    
+
+Which languages a caller can switch between depends on the speech recognition model. With Deepgram Nova-3, a speaking language outside its switching set stays locked even with the setting on. With ElevenLabs Scribe v2, turning the setting off steers recognition toward the speaking language rather than locking it. To lock it, use strict language.
+
+## 
+
+​
+
+Strict language
+
+**Strict language** keeps the agent from understanding any language other than its speaking language. When speech recognition detects that the caller spoke another language, the agent receives `[unintelligible speech]` instead of the transcript and answers as if it did not catch what was said. It applies whether multilingual recognition is on or off. It is off by default. Turn it on via the API (`asr.strict_language`, default `false`):
+
+API (curl)
+    
+    
+    curl --request PATCH "https://api.fish.audio/v1/agent/agents/$AGENT_ID/config" \
+      --header "Authorization: Bearer $FISH_API_KEY" \
+      --header "Content-Type: application/json" \
+      --data '{
+        "asr": {
+          "strict_language": true
+        }
+      }'
+    
+
+With the ElevenLabs Scribe v2 models, speech in another language reaches the agent as `[unintelligible speech]`. With Deepgram Nova-3, recognition runs a model for the speaking language only, so speech in another language is usually not transcribed at all and the agent keeps listening.
+
+Language is detected per utterance, so a short or heavily accented phrase in the speaking language can occasionally be detected as another language and replaced with `[unintelligible speech]` too. Only turn on strict language when you explicitly need to stop the agent from understanding other languages.
+
+## 
+
+​
+
+Speaking speed
+
+**Speaking speed** sets how fast the agent talks, as a multiplier from `0.5` (half speed) to `2.0` (double speed). The default is `1.0`. Many English-language agents sound more natural at a slightly faster rate, such as `1.2`. Set it with the **Speaking speed** slider in the Builder’s voice section, or via the API (`voice.speed`, default `1.0`):
+
+API (curl)
+    
+    
+    curl --request PATCH "https://api.fish.audio/v1/agent/agents/$AGENT_ID/config" \
+      --header "Authorization: Bearer $FISH_API_KEY" \
+      --header "Content-Type: application/json" \
+      --data '{
+        "voice": {
+          "speed": 1.2
+        }
+      }'
+    
+
+The rate applies to everything the agent speaks in voice and phone sessions. As with every voice setting, the change lands in the draft: publish to roll it out.
+
+## 
+
+​
+
+Expressive mode
+
+**Expressive mode** makes the agent steer its own delivery: it opens sentences with emotion cues, adds natural pauses and emphasis, laughs where it genuinely fits, and speaks the way people talk, with contractions and the occasional “um”. You get lively, emotionally aware speech without writing any delivery rules into your prompt. It is on by default. Toggle it with the **Expressive mode** switch in the Builder’s voice section, or via the API (`voice.expressive`, default `true`):
+
+API (curl)
+    
+    
+    curl --request PATCH "https://api.fish.audio/v1/agent/agents/$AGENT_ID/config" \
+      --header "Authorization: Bearer $FISH_API_KEY" \
+      --header "Content-Type: application/json" \
+      --data '{
+        "voice": {
+          "expressive": true
+        }
+      }'
+    
+
+The delivery cues are rendered by the voice model. They are never spoken and never appear in transcripts or message history. Expressive mode applies to spoken sessions (voice calls and phone); text chat is unaffected.
+
+Keep your system prompt about **what** the agent says: who it is, what it knows, what it should do. With expressive mode on, **how** it sounds is handled for you.
+
+## 
+
+​
+
+Going further
+
+## Agent configuration
+
+System prompt, first message, and conversation settings.
+
+## System tools
+
+Built-in capabilities like hanging up the call.
+
+## Preview calls
+
+Talk to your draft agent and hear the voice live.
+
+## Versions & publishing
+
+How drafts become the live agent.
+
+Was this page helpful?
+
+YesNo
+
+[Suggest edits](https://github.com/fishaudio/docs/edit/main/agents/build/voice-language.mdx)[Raise issue](https://github.com/fishaudio/docs/issues/new?title=Issue%20on%20docs&body=Path:%20/agents/build/voice-language)
+
+[Configuration](https://docs.fish.audio/agents/build/configuration)[Time & Timezone](https://docs.fish.audio/agents/build/time-timezone)

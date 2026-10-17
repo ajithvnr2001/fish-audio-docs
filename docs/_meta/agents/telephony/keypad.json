@@ -1,0 +1,10 @@
+{
+  "url": "https://docs.fish.audio/agents/telephony/keypad/",
+  "file": "agents/telephony/keypad.md",
+  "title": "Keypad Menu and Input - Fish Audio",
+  "method": "scrapling+scrapegraph",
+  "fetched_at": "2026-10-17T10:46:44.293322+00:00",
+  "html_len": 434119,
+  "md_len": 14775,
+  "depth": 0
+}

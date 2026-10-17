@@ -1,0 +1,236 @@
+---
+url: https://docs.fish.audio/agents/monitor/post-call-analysis/
+title: Post-call Analysis - Fish Audio
+method: scrapling+scrapegraph
+fetched_at: 2026-10-17T10:46:43.202535+00:00
+---
+
+# Post-call Analysis - Fish Audio
+
+> Source: https://docs.fish.audio/agents/monitor/post-call-analysis/
+
+## On this page
+
+  * What a run produces
+    * Summary
+    * Data fields
+    * Success criteria
+  * Configure analysis
+  * When analysis runs
+  * Read the results
+  * Going further
+
+
+
+Monitor
+
+# Post-call Analysis
+
+Copy pageCopy page
+
+Automatic summaries, structured data extraction, and success evaluation after every conversation
+
+Copy pageCopy page
+
+After a conversation ends, the platform runs an LLM pass over the [stored transcript](https://docs.fish.audio/agents/monitor/conversation-history#what-gets-stored) and produces three results: a **summary** , values for the **data fields** you define, and a verdict for each **success criterion**. Summaries are on by default for every agent. Extraction and evaluation are opt-in, configured per agent on the Builder’s **Analysis** page.
+
+## See it on a test call
+
+End a preview call and watch the analysis card fill in.
+
+## Read results via API
+
+Analysis is embedded in every session detail response.
+
+## Push to your backend
+
+Get notified the moment a conversation is analyzed.
+
+## 
+
+​
+
+What a run produces
+
+### 
+
+​
+
+Summary
+
+A concise recap of the conversation, enabled by default.
+
+  * **Custom prompt** (optional, up to 1,000 characters): replace the platform’s default summary instruction with your own, e.g. “Summarize in two sentences, focusing on the caller’s request and the outcome.”
+  * **Output language** : fixed per agent, chosen from the same [52 languages](https://docs.fish.audio/agents/build/voice-language#speaking-language) as the speaking language. Default is English.
+
+
+
+Summaries and rationales are always written in the configured language, even when the conversation happened in another one, so downstream systems see consistent output.
+
+### 
+
+​
+
+Data fields
+
+Structured values extracted from the transcript, up to **20 fields** per agent. Each field is:
+
+Property| Description  
+---|---  
+`name`| Unique per agent; lowercase letters, digits, and underscores, starting with a letter (up to 64 characters)  
+`type`| `boolean`, `text`, `number`, or `enum`  
+`description`| Instruction telling the model what to extract (up to 500 characters)  
+`enum_options`| For `enum` fields only: 2–20 allowed values  
+  
+When the conversation doesn’t contain the information, the field’s value is `null` with a rationale explaining why.
+
+### 
+
+​
+
+Success criteria
+
+Up to **10 criteria** per agent, each a `name` plus a `description` (up to 500 characters) stating what a successful conversation looks like, such as “The agent resolved the caller’s issue or set clear next steps.” Every criterion gets a three-state verdict with a rationale:
+
+  * **`success`** : the transcript shows the expectation was met.
+  * **`failure`** : the transcript shows it was not.
+  * **`unknown`** : the transcript is incomplete, the answer was ambiguous, or the information needed to judge is missing.
+
+
+
+The `unknown` state is deliberate: rather than forcing an ambiguous call into a binary verdict, the model tells you it couldn’t judge, so your success-rate numbers stay honest.
+
+## 
+
+​
+
+Configure analysis
+
+Open your agent’s **Analysis** page in the Builder. Three cards (Summary, Data fields, and Criteria) autosave to the draft as you edit. You can also set the `analysis` section of the configuration via the API:
+    
+    
+    curl --request PATCH "https://api.fish.audio/v1/agent/agents/$AGENT_ID/config" \
+      --header "Authorization: Bearer $FISH_API_KEY" \
+      --header "Content-Type: application/json" \
+      --data '{
+        "analysis": {
+          "summary": { "enabled": true, "language": "en" },
+          "data_fields": [
+            {
+              "name": "callback_requested",
+              "type": "boolean",
+              "description": "Did the caller ask to be called back?"
+            },
+            {
+              "name": "issue_category",
+              "type": "enum",
+              "description": "The main topic of the call.",
+              "enum_options": ["billing", "shipping", "product", "other"]
+            }
+          ],
+          "criteria": [
+            {
+              "name": "issue_resolved",
+              "description": "The agent fully resolved the caller'\''s issue, or set clear next steps before the call ended."
+            }
+          ]
+        }
+      }'
+    
+
+Like all configuration, edits land in the [draft](https://docs.fish.audio/agents/deploy/versions-publishing). Preview calls use the draft immediately; production sessions pick up analysis changes after you **publish**. To disable analysis entirely, turn the summary off and leave both lists empty. Conversations then finish with analysis status `skipped` and no LLM call is made.
+
+## 
+
+​
+
+When analysis runs
+
+Analysis starts automatically when a conversation ends: production sessions from any source, and preview calls when you end them. A run moves through these statuses:
+
+Status| Meaning  
+---|---  
+`queued`| Scheduled, waiting to run  
+`running`| The LLM pass is in progress  
+`completed`| Results are available  
+`skipped`| Nothing to analyze: the conversation had no user messages, or analysis is disabled  
+`error`| The run failed; no results  
+  
+Results are typically ready within seconds of the conversation ending.
+
+Production sessions are analyzed against the agent version pinned when the session started; editing your criteria afterwards never changes how past conversations were judged.
+
+## 
+
+​
+
+Read the results
+
+In the Builder, analysis appears in the call panel after a preview call ends. Programmatically, the [session detail](https://docs.fish.audio/agents/monitor/conversation-history) response embeds it under `analysis`:
+    
+    
+    curl "https://api.fish.audio/v1/agent/sessions/$SESSION_ID" \
+      --header "Authorization: Bearer $FISH_API_KEY"
+    
+    
+    
+    {
+      "analysis": {
+        "status": "completed",
+        "summary": "The caller reported a delayed order and asked for a refund. The agent confirmed the delay, issued the refund, and offered a discount on the next purchase.",
+        "data": [
+          {
+            "name": "callback_requested",
+            "type": "boolean",
+            "value": false,
+            "rationale": "The caller did not ask to be called back."
+          },
+          {
+            "name": "issue_category",
+            "type": "enum",
+            "value": "shipping",
+            "rationale": "The conversation centered on a delayed delivery."
+          }
+        ],
+        "criteria_results": [
+          {
+            "name": "issue_resolved",
+            "result": "success",
+            "rationale": "The refund was issued and the caller confirmed they were satisfied."
+          }
+        ]
+      }
+    }
+    
+
+To push results into your CRM or data warehouse as soon as they’re ready, configure a [post-call webhook](https://docs.fish.audio/agents/monitor/webhooks). `call.analyzed` fires as soon as the run settles, whatever the outcome, with `analysis.status` telling you which of the terminal statuses above it reached.
+
+## 
+
+​
+
+Going further
+
+## Conversation history
+
+Retrieve stored transcripts and session details over REST.
+
+## Webhooks
+
+Deliver analysis results to your systems automatically.
+
+## Preview calls
+
+Iterate on fields and criteria with instant feedback after each test call.
+
+## Versions & publishing
+
+How draft edits roll out to production sessions.
+
+Was this page helpful?
+
+YesNo
+
+[Suggest edits](https://github.com/fishaudio/docs/edit/main/agents/monitor/post-call-analysis.mdx)[Raise issue](https://github.com/fishaudio/docs/issues/new?title=Issue%20on%20docs&body=Path:%20/agents/monitor/post-call-analysis)
+
+[Conversation History](https://docs.fish.audio/agents/monitor/conversation-history)[Webhooks](https://docs.fish.audio/agents/monitor/webhooks)

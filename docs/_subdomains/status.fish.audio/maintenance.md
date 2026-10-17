@@ -1,0 +1,36 @@
+---
+url: https://status.fish.audio/maintenance/
+title: Scheduled maintenance | Fish Audio
+method: scrapling+scrapegraph
+fetched_at: 2026-10-17T10:47:45.366692+00:00
+---
+
+# Scheduled maintenance | Fish Audio
+
+> Source: https://status.fish.audio/maintenance/
+
+[ ![Fish Audio](https://betterstack.com/cdn-cgi/image/width=200,height=29,fit=contain,quality=,dpr=1,format=auto/https://d1lppblt9t2x15.cloudfront.net/logos/fb69f7bb9c799cf45d6565f3d17e190d.png)](https://fish.audio)
+
+[ Status ](https://status.fish.audio/) [ Maintenance ](https://status.fish.audio/maintenance) [ Previous incidents ](https://status.fish.audio/incidents)
+
+[Get in touch](mailto:support@fish.audio)
+
+# Maintenance
+
+[ ](https://status.fish.audio/maintenance/2026-07/2026-09) Oct 2026 to Dec 2026 [ ](https://status.fish.audio/maintenance/2027-01/2027-03)
+
+December 2026 
+
+No maintenance scheduled 
+
+November 2026 
+
+No maintenance scheduled 
+
+October 2026 
+
+No maintenance 
+
+Powered by
+
+[](https://betterstack.com/)

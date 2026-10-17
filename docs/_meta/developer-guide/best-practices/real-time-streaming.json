@@ -1,0 +1,10 @@
+{
+  "url": "https://docs.fish.audio/developer-guide/best-practices/real-time-streaming/",
+  "file": "developer-guide/best-practices/real-time-streaming.md",
+  "title": "Real-time Voice Streaming - Fish Audio",
+  "method": "scrapling+scrapegraph",
+  "fetched_at": "2026-10-17T10:47:26.880334+00:00",
+  "html_len": 731065,
+  "md_len": 12520,
+  "depth": 0
+}

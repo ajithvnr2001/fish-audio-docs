@@ -1,0 +1,325 @@
+---
+url: https://docs.fish.audio/agents/build/dynamic-variables/
+title: Dynamic Variables - Fish Audio
+method: scrapling+scrapegraph
+fetched_at: 2026-10-17T10:46:40.459362+00:00
+---
+
+# Dynamic Variables - Fish Audio
+
+> Source: https://docs.fish.audio/agents/build/dynamic-variables/
+
+## On this page
+
+  * Where variables render
+  * Custom variables
+    * Default values
+    * Who supplies the values
+    * Custom variables in webhook tools
+  * System variables
+    * Reading a number out loud
+    * Phone numbers
+    * Date and timezone
+    * In webhook tools
+    * Unknown names
+  * World context
+  * Going further
+
+
+
+Build
+
+# Dynamic Variables
+
+Copy pageCopy page
+
+Personalize each session with template variables: your own values, and facts the platform fills in
+
+Copy pageCopy page
+
+An agent’s published configuration is shared by every caller. Dynamic variables personalize it per session: write `{{name}}` placeholders in the configuration and they are substituted once, when the published configuration is assembled for the session. There are two kinds:
+
+  * **Custom variables** : values you supply when you create the session, such as the caller’s name or plan.
+  * **System variables** : facts about the session itself, such as the caller’s phone number or the date, filled in by the platform under the reserved `system.*` names.
+
+
+
+## 
+
+​
+
+Where variables render
+
+Placeholders are substituted in the agent’s configured text and in webhook tool requests. Everything else (knowledge base content, tool names and descriptions, post-call analysis prompts) is left as written.
+
+Where| Custom variables| System variables  
+---|---|---  
+System prompt (`prompt.system_prompt`)| Yes| Yes  
+First message, fixed text or prompt (`prompt.first_message`, `prompt.first_message_prompt`)| Yes| Yes  
+Session [overrides](https://docs.fish.audio/agents/deploy/authenticated-sessions#overrides) of those fields (`overrides.system_prompt`, `overrides.first_message`, `overrides.first_message_prompt`)| Yes| Yes  
+[Warm transfer briefing](https://docs.fish.audio/agents/telephony/transfers#customizing-the-briefing) (`conversation.transfer_destinations[].warm_briefing_instructions`)| Yes| Yes  
+[Fixed transfer announcement](https://docs.fish.audio/agents/telephony/transfers#the-transfer-announcement) (`conversation.transfer_destinations[].announcement_message`)| Yes| Yes  
+[Webhook tool](https://docs.fish.audio/agents/build/webhook-tools#argument-templating) URL, header values, and body template| Yes| Yes  
+  
+Custom values travel with the request that starts the session: `dynamic_variables` on [`POST /v1/agent/sessions`](https://docs.fish.audio/agents/deploy/authenticated-sessions), `dynamicVariables` in the SDK’s `AgentSession.start()` for [public agents](https://docs.fish.audio/agents/deploy/public-agents), `dynamic_variables` on [`POST /v1/agent/phone-calls`](https://docs.fish.audio/agents/telephony/outbound-calls#request-fields) for outbound calls, and the variables panel of a [preview call](https://docs.fish.audio/agents/test/preview-calls) in the Builder. Inbound phone calls have no such request: values come from the [inbound call webhook](https://docs.fish.audio/agents/monitor/webhooks#inbound-call-webhook) when one is configured; the caller’s number and the other session facts are always available as system variables. A [keypad menu](https://docs.fish.audio/agents/telephony/keypad) can fill one more variable with the caller’s choice.
+
+## 
+
+​
+
+Custom variables
+
+Write `{{variable_name}}` placeholders in your agent’s system prompt or first message and supply values when you create the session:
+
+System prompt
+    
+    
+    You are a support agent for {{company}}. The caller's name is {{customer_name}}
+    and they are on the {{plan}} plan. Greet them by name.
+    
+
+Pass values as a flat object of strings, numbers, or booleans. Variable names must match `[A-Za-z][A-Za-z0-9_]*` (no hyphens or dots; the dotted `system.*` names are reserved for system variables), string values are capped at 100,000 characters, and a request can carry at most 500 variables totaling 1 MiB as UTF-8 JSON. Violations reject session creation with `422`:
+
+API (curl)
+
+JavaScript SDK
+    
+    
+    curl --request POST https://api.fish.audio/v1/agent/sessions \
+      --header "Authorization: Bearer $FISH_API_KEY" \
+      --header "Content-Type: application/json" \
+      --data '{
+        "agent_id": "YOUR_AGENT_ID",
+        "dynamic_variables": {
+          "company": "Acme",
+          "customer_name": "Ada",
+          "plan": "Pro"
+        }
+      }'
+    
+    
+    
+    import { AgentSession } from "@fishaudio/agent-client";
+    
+    // Public agent: the SDK creates the session and sends the variables for you.
+    const session = await AgentSession.start({
+      agentId: "YOUR_AGENT_ID",
+      dynamicVariables: { company: "Acme", customer_name: "Ada", plan: "Pro" },
+    });
+    
+
+### 
+
+​
+
+Default values
+
+A placeholder is resolved in this order: the value supplied for the session, then the default configured on the agent. What happens when neither exists is set by `on_missing`:
+
+`on_missing`| A placeholder with no value  
+---|---  
+`keep` (default)| Stays in the text as written, visible to the model and spoken on a fixed first message  
+`empty`| Renders as empty text  
+`reject`| Session creation fails with `422 Missing dynamic variables: ...` and an inbound call is not connected  
+  
+Set both in the **Dynamic variables** sheet of the agent’s Configuration page (the **Default values** link under the system prompt), or through the `variables` section of the config API. The defaults map replaces as a whole on every update, and names follow the same rules as `dynamic_variables`:
+    
+    
+    curl --request PATCH https://api.fish.audio/v1/agent/agents/YOUR_AGENT_ID/config \
+      --header "Authorization: Bearer $FISH_API_KEY" \
+      --header "Content-Type: application/json" \
+      --data '{
+        "variables": {
+          "defaults": { "customer_name": "there", "plan": "Free" },
+          "on_missing": "empty"
+        }
+      }'
+    
+
+With these defaults, a session that sends only `{"plan": "Pro"}` renders the first message `Hi {{customer_name}}, welcome to the {{plan}} plan.` as `Hi there, welcome to the Pro plan.`
+
+By default a placeholder with no session value and no default stays as written, so `Hi {{customer_name}}, welcome.` is spoken braces and all on a fixed first message. For text that is spoken word for word, give every placeholder that can go unfilled a default that reads well on its own, or set `on_missing` to `empty` (`Hi , welcome.`) or `reject`. A fixed first message that renders to nothing but whitespace is dropped and the agent opens with its generic greeting instead.
+
+Variables fill placeholders in the configured text. To replace whole configuration fields for a session (the prompt itself, the opener, voice, language), use [overrides](https://docs.fish.audio/agents/deploy/authenticated-sessions#overrides) on the same request; `{{placeholders}}` render inside overridden text too.
+
+### 
+
+​
+
+Who supplies the values
+
+Where custom variable values come from depends on the session’s [access mode](https://docs.fish.audio/agents/deploy/overview#who-may-start-sessions):
+
+Mode| Who creates the session| Who supplies the values  
+---|---|---  
+`agentId` ([public agents](https://docs.fish.audio/agents/deploy/public-agents))| The SDK, directly from the browser| The browser, via `AgentSession.start()` options  
+`sessionToken` (private agents)| Your backend, with your API key| Your backend, in its `POST /v1/agent/sessions` call  
+  
+In `sessionToken` mode the SDK’s `dynamicVariables` option has no effect. The session already exists by the time the token reaches the browser. Attach personalization server-side instead:
+
+Backend (sessionToken mode)
+    
+    
+    // Your backend endpoint, called by your own frontend
+    const response = await fetch("https://api.fish.audio/v1/agent/sessions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.FISH_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        agent_id: "YOUR_AGENT_ID",
+        dynamic_variables: { customer_name: user.name, plan: user.plan },
+      }),
+    });
+    const sessionToken = await response.json(); // pass to AgentSession.start({ sessionToken })
+    
+
+In `agentId` mode, values arrive from the end user’s browser. Treat them as untrusted input, and use `sessionToken` mode when personalization must come from data only your backend knows.
+
+### 
+
+​
+
+Custom variables in webhook tools
+
+Custom variables also render inside [webhook tool](https://docs.fish.audio/agents/build/webhook-tools#argument-templating) requests: the URL, header values, and body template. Use them for values a tool needs on every call but the agent should never have to repeat, such as a customer id from your backend or from the [inbound call webhook](https://docs.fish.audio/agents/monitor/webhooks#inbound-call-webhook). The value is fixed when the session starts, so every call to the tool sends the same one.
+
+Webhook tool URL
+    
+    
+    https://ehr.example.com/patients/{{patient_id}}/appointments?clinic={{clinic_id}}
+    
+
+  * In the URL the value is URL-encoded, like argument values. In header values and the body template it is inserted as is. Numbers render as written, booleans as `true` or `false`.
+  * When the tool declares an argument with the same name as a custom variable, the argument wins: that placeholder is filled from what the agent supplies.
+  * A placeholder with no value renders as an empty string in the request, unlike in the prompt, where it stays visible.
+
+
+
+On a [public agent](https://docs.fish.audio/agents/deploy/public-agents) the browser supplies custom values, so anyone can start a session with any `patient_id`. When a templated value identifies a person, don’t let it authorize access to their data on its own: create sessions from your backend (`sessionToken` mode), or let the inbound call webhook supply it on phone calls.
+
+## 
+
+​
+
+System variables
+
+The platform fills a handful of `{{system.*}}` placeholders itself, on every session. You cannot supply or override them: the names you pass in `dynamic_variables` cannot contain a dot, so the two namespaces never collide.
+
+Variable| Value| Notes  
+---|---|---  
+`system.channel`| `phone_inbound`, `phone_outbound`, or `web_voice`| Web SDK, API, preview, and Single Turn and Tool test sessions are `web_voice`. A Simulation test uses its [channel](https://docs.fish.audio/agents/test/agent-tests#channel).  
+`system.timezone`| The session’s resolved IANA timezone, for example `Asia/Tokyo`| `UTC` when nothing resolves. Always equals the session’s `timezone` field; see [which timezone a session uses](https://docs.fish.audio/agents/build/time-timezone#which-timezone-a-session-uses).  
+`system.today`| Today’s date in that timezone, ISO 8601 `YYYY-MM-DD`| The calendar date at session creation. There is no `system.now`; see World context.  
+`system.language`| The session language code, one of the [52 supported languages](https://docs.fish.audio/agents/build/voice-language#speaking-language)|   
+The `language` [override](https://docs.fish.audio/agents/deploy/authenticated-sessions#overrides) when the request carries one, otherwise the agent’s [speaking language](https://docs.fish.audio/agents/build/voice-language#speaking-language).| |   
+`system.caller_number`| The human party’s number, E.164| Inbound: the caller (empty if withheld or not a valid E.164 number). Outbound: the number you dialed. Empty on non-phone sessions.  
+`system.caller_number_spoken`| The same number written for speech, for example `+1; 4 1 5; 5 5 5; 0 1 2 3`| Use it wherever the agent should say the number out loud; see Reading a number out loud. Empty whenever `system.caller_number` is empty.  
+`system.dialed_number`| Your workspace number, E.164| Inbound: the number that was called. Outbound: the number the call was placed from. Empty on non-phone sessions.  
+  
+### 
+
+​
+
+Reading a number out loud
+
+Write `{{system.caller_number}}` where the number must stay a plain E.164 string (a tool argument, a lookup, a message the customer reads) and `{{system.caller_number_spoken}}` where the agent should say it. The spoken form puts the country code first, then groups of three or four digits, with a space between digits and a semicolon between groups: `+14155550123` becomes `+1; 4 1 5; 5 5 5; 0 1 2 3`. The agent repeats it as written, and the voice reads it digit by digit with a short pause at each semicolon, in every supported language. The semicolon is deliberate: a comma or a period is spoken as a word in several languages, a semicolon is silent in all of them. A raw E.164 string is read correctly in English and Chinese, but in most other languages it comes out as one long number, and asking the agent in the prompt to “read it digit by digit” leaves the spelling to the model, which occasionally drops a digit.
+
+### 
+
+​
+
+Phone numbers
+
+The phone numbers are the session’s `caller_number` and `dialed_number` fields as shown in [session history](https://docs.fish.audio/agents/telephony/inbound-calls#phone-sessions-in-history). Only a value that is a well-formed E.164 number reaches the agent: anything else the carrier sends as the caller id (for example an `anonymous` marker) renders as an empty string, while the history field keeps the raw value. On every session that is not a phone call (web, text, preview, agent tests) both render as an empty string, never as literal `{{system.caller_number}}` text, so one agent can serve web and phone with the same prompt. Write the prompt so it also reads well when the number is empty:
+
+System prompt
+    
+    
+    You answer the support line {{system.dialed_number}}. The caller's number is
+    "{{system.caller_number}}". If it is empty, ask for a callback number; otherwise
+    confirm the last four digits before discussing the account.
+    
+
+On an inbound call from +1 415 555 0123 to your number +1 408 555 0199 the model sees:
+
+Rendered
+    
+    
+    You answer the support line +14085550199. The caller's number is
+    "+14155550123". If it is empty, ask for a callback number; otherwise
+    confirm the last four digits before discussing the account.
+    
+
+On a web session the same prompt renders `The caller's number is "".`, and the agent asks for a number. To look the caller up in your own systems, template the number into a webhook tool instead of relying on the model to repeat it.
+
+### 
+
+​
+
+Date and timezone
+
+`system.today` is always ISO formatted, whatever the session language: in the system prompt the model reads it and speaks it in the session’s language, while a fixed first message containing `{{system.today}}` is spoken verbatim as `2026-08-21`. A session that runs past midnight keeps its opening date. Template it, and `system.timezone`, when a request needs them explicitly, for example a webhook tool’s query string; for the agent’s own sense of time no variable is needed, see World context.
+
+### 
+
+​
+
+In webhook tools
+
+System variables render wherever custom variables do, including [webhook tool](https://docs.fish.audio/agents/build/webhook-tools#argument-templating) requests: the URL, header values, and body template. In the URL the value is URL-encoded, like argument values: the leading `+` of an E.164 number travels as `%2B` and the `/` in a timezone name as `%2F`, both decoding back on your server.
+
+Webhook tool URL
+    
+    
+    https://crm.example.com/availability?phone={{system.caller_number}}&from={{system.today}}&tz={{system.timezone}}
+    
+
+### 
+
+​
+
+Unknown names
+
+A reference to a system variable that does not exist (`{{system.foo}}`) is rejected with `422` when you save the configuration or the tool, and when you send it in session overrides. The error lists the available names.
+
+There is no `system.session_id`. The configuration is rendered before the session receives its id, so the id cannot be templated into it. Read it from the `POST /v1/agent/sessions` [response](https://docs.fish.audio/agents/deploy/authenticated-sessions), the SDK’s `connect` event, or the `session` object in [webhooks](https://docs.fish.audio/agents/monitor/webhooks).
+
+## 
+
+​
+
+World context
+
+The agent knows the current date and time without any variable. The platform states the date and the session’s timezone at the start of every session and refreshes the time on every turn, so “tomorrow morning” or “next Tuesday” resolve correctly even in a long conversation. You don’t need a custom `{{today}}` or `{{now}}`, and there is no `system.now`: variables render once, when the session is created, so a templated time would be stale from the first reply onward. When you want the date or timezone as text in a template, for example in a webhook tool URL, use the `system.today` and `system.timezone` system variables. See [Time & timezone](https://docs.fish.audio/agents/build/time-timezone) for how the timezone is resolved and how to turn the injection off for a session (`world_context: false`).
+
+## 
+
+​
+
+Going further
+
+## Agent configuration
+
+The fields your placeholders act on.
+
+## Overrides
+
+Replace whole configuration fields for one session.
+
+## Versions & publishing
+
+Sessions assemble the published configuration.
+
+## Web SDK
+
+Every `AgentSession.start()` option.
+
+Was this page helpful?
+
+YesNo
+
+[Suggest edits](https://github.com/fishaudio/docs/edit/main/agents/build/dynamic-variables.mdx)[Raise issue](https://github.com/fishaudio/docs/issues/new?title=Issue%20on%20docs&body=Path:%20/agents/build/dynamic-variables)
+
+[System Tools](https://docs.fish.audio/agents/build/system-tools)[Custom LLM](https://docs.fish.audio/agents/build/custom-llm)

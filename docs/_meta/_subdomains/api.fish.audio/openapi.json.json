@@ -1,0 +1,10 @@
+{
+  "url": "https://api.fish.audio/openapi.json",
+  "file": "_subdomains/api.fish.audio/openapi.json.md",
+  "title": "https://api.fish.audio/openapi.json",
+  "method": "scrapling+scrapegraph",
+  "fetched_at": "2026-10-17T10:47:45.216868+00:00",
+  "html_len": 381877,
+  "md_len": 379834,
+  "depth": 1
+}

@@ -1,0 +1,10 @@
+{
+  "url": "https://docs.fish.audio/agents/build/knowledge-base/",
+  "file": "agents/build/knowledge-base.md",
+  "title": "Knowledge Base - Fish Audio",
+  "method": "scrapling+scrapegraph",
+  "fetched_at": "2026-10-17T10:46:40.171834+00:00",
+  "html_len": 382540,
+  "md_len": 8539,
+  "depth": 0
+}

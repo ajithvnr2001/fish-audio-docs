@@ -1,0 +1,8 @@
+*.log
+crawl_state.json
+__pycache__/
+*.pyc
+.venv/
+tools/
+.env
+.api_keys.env

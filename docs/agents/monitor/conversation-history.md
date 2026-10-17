@@ -1,0 +1,418 @@
+---
+url: https://docs.fish.audio/agents/monitor/conversation-history/
+title: Conversation History - Fish Audio
+method: scrapling+scrapegraph
+fetched_at: 2026-10-17T10:46:43.056482+00:00
+---
+
+# Conversation History - Fish Audio
+
+> Source: https://docs.fish.audio/agents/monitor/conversation-history/
+
+## On this page
+
+  * What gets stored
+  * List sessions
+    * Status and end reason
+    * Filters
+    * Pagination
+  * Get a session
+    * Item types
+    * Transfer items
+    * After the transfer
+    * Correlate with live events
+  * Download recordings
+  * Access semantics
+  * Going further
+
+
+
+Monitor
+
+# Conversation History
+
+Copy pageCopy page
+
+List past sessions, replay the full timeline of messages and tool calls, and download recordings
+
+Copy pageCopy page
+
+Every production session your agents handle (from the API, the console, [public agents](https://docs.fish.audio/agents/deploy/public-agents), or [phone calls](https://docs.fish.audio/agents/telephony/inbound-calls)) is queryable over REST: a lightweight list for browsing, a merged timeline of messages and tool activity per session, and per-speaker recordings when the agent records audio. You can query a session while the call is still in progress. This is a server-side API: authenticate with your API key. The client SDKs deliberately expose no history interface; fetch history from your backend and pass it to your frontend as needed.
+
+## 
+
+​
+
+What gets stored
+
+The session record (status, timing, caller attribution, name, `end_user_id`, and `metadata`) and the conversation transcript are always kept for production sessions. Audio recording is a per-agent choice, on by default: set `conversation.record_audio` in the console under your agent’s **Settings** or in the `conversation` section of the [config API](https://docs.fish.audio/agents/build/configuration#configure-through-the-api), with a per-session override on the [session request](https://docs.fish.audio/agents/deploy/authenticated-sessions). Recording off means there is no audio to download. The setting doesn’t affect the live call: transcript events still stream to connected clients in real time.
+
+Recording defaults to on. Call-recording laws vary by jurisdiction. Make sure callers are informed and consent where required before going live.
+
+## 
+
+​
+
+List sessions
+
+`GET /v1/agent/sessions` returns session facts, newest first. The list is intentionally thin (no transcripts or tool details) so it stays fast at any volume.
+
+API (curl)
+
+Python
+    
+    
+    curl "https://api.fish.audio/v1/agent/sessions?agent_id=YOUR_AGENT_ID&status=completed&page_size=50" \
+      --header "Authorization: Bearer $FISH_API_KEY"
+    
+    
+    
+    import os
+    import httpx
+    
+    resp = httpx.get(
+        "https://api.fish.audio/v1/agent/sessions",
+        params={"agent_id": "YOUR_AGENT_ID", "status": "completed", "page_size": 50},
+        headers={"Authorization": f"Bearer {os.environ['FISH_API_KEY']}"},
+    )
+    sessions = resp.json()["sessions"]
+    
+
+Each row carries the session facts:
+    
+    
+    {
+      "sessions": [
+        {
+          "session_id": "…",
+          "agent_id": "…",
+          "agent_name": "Support agent",
+          "name": "Order #4821 follow-up",
+          "end_user_id": "user_42",
+          "status": "completed",
+          "end_reason": "user_hangup",
+          "source": "phone",
+          "caller_number": "+15551234567",
+          "dialed_number": "+14155550100",
+          "sip_call_id": "7f3a9c@sbc.example.com",
+          "started_at": "2026-07-22T09:14:02Z",
+          "ended_at": "2026-07-22T09:16:05Z",
+          "duration_seconds": 123,
+          "metadata": { "crm_ticket": "T-4821" }
+        }
+      ],
+      "has_more": true,
+      "next_cursor": "…"
+    }
+    
+
+`caller_number` and `dialed_number` are set for phone sessions only (E.164) and are `null` for web sessions. `sip_call_id` is the SIP `Call-ID` of the call’s INVITE. It is `null` on web sessions and on outbound calls that were never answered. See [Match calls with your SIP records](https://docs.fish.audio/agents/telephony/byo-sip#match-calls-with-your-sip-records). `name` is the display name you passed when creating the session (`null` when omitted), `end_user_id` is the end-user identifier you passed (`null` when omitted), and `metadata` echoes back whatever you attached when creating the session.
+
+### 
+
+​
+
+Status and end reason
+
+`status` says whether a conversation happened: `completed` means a participant connected and the call is over (it is billed even if the runtime ended it), `failed` means nobody ever connected, `active` means it is in progress, `pending` means the session was created and no one has connected yet, and `unknown` means the platform temporarily lost track of a live call. `end_reason` says why it ended. It is `null` while a session is live, for a short moment after it ends, and on sessions that predate the field.
+
+`end_reason`| `status`| Meaning  
+---|---|---  
+`user_hangup`| `completed`| The caller hung up  
+`agent_hangup`| `completed`| The agent ended the call (end-call tool, workflow end node, or idle hangup)  
+`escalated`| `completed`| The call was transferred to a human. See Transfer items  
+`conversation_timeout`| `completed`| The call reached its maximum duration  
+`heartbeat_timeout`| `completed`| The agent runtime stopped responding mid-call  
+`agent_join_timeout`| `completed`| The caller connected but no agent joined the call  
+`internal_error`| `completed`| The agent runtime hit an internal error  
+`llm_endpoint_failure`| `completed`| A [custom LLM](https://docs.fish.audio/agents/build/custom-llm) failed repeatedly and the agent hung up  
+`room_join_timeout`| `failed`| The caller never connected before the join deadline  
+`cancelled`| `failed`| The session was ended before anyone connected  
+`dial_failed`| `failed`| An outbound call was not answered; `dial_status` has the detail  
+  
+The same values appear on the [`call.ended` webhook](https://docs.fish.audio/agents/monitor/webhooks) and in the dashboard, so the three surfaces never disagree about a session.
+
+### 
+
+​
+
+Filters
+
+Parameter| Behavior  
+---|---  
+`agent_id`| Sessions of a single agent  
+`status`| One of `pending`, `active`, `completed`, `failed`, `unknown`; comma-separate values to match several  
+`end_reason`| One or more of the `end_reason` values above, comma-separated  
+`caller_number`| Exact match on the caller’s E.164 number; a bare number gets `+` prepended automatically  
+`sip_call_id`| Exact match on the SIP `Call-ID` of the call’s INVITE, for looking up the session behind a carrier CDR entry  
+`end_user_id`| Exact, case-sensitive match on the `end_user_id` you set when [creating the session](https://docs.fish.audio/agents/deploy/authenticated-sessions), for listing one customer’s sessions  
+`created_after` / `created_before`| ISO 8601 timestamps  
+  
+`pending` sessions (a session was created but no participant ever connected) are excluded by default. Pass `status=pending` explicitly to see them. Preview calls made from the Builder never appear in this API.
+
+### 
+
+​
+
+Pagination
+
+Two modes, mutually exclusive (combining them returns `400`):
+
+Mode| How| Use it for  
+---|---|---  
+Cursor| Pass the previous response’s `next_cursor` as `cursor`; stop when `has_more` is `false`| Crawling, exports, syncing  
+Page| Pass `page` (1-based); the response always includes `total`| Paged UIs with jump-to-page  
+  
+`page_size` defaults to 30, maximum 100; values out of range are rejected. In cursor mode `total` is `null` unless you pass `include_total=true`. Page mode is capped at an offset of 100,000 rows (requests beyond it return `400`), and every page response still includes `next_cursor`, so you can switch to cursor crawling from any page for deep scans.
+
+## 
+
+​
+
+Get a session
+
+`GET /v1/agent/sessions/{session_id}` returns the session facts plus a single `items` timeline: messages and tool activity merged in the order they actually happened.
+
+API (curl)
+    
+    
+    curl "https://api.fish.audio/v1/agent/sessions/SESSION_ID" \
+      --header "Authorization: Bearer $FISH_API_KEY"
+    
+    
+    
+    {
+      "session_id": "…",
+      "status": "completed",
+      "end_reason": "user_hangup",
+      "items": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": "Can you check order A1?",
+          "turn_id": 3,
+          "created_at": "2026-07-22T09:14:05Z"
+        },
+        {
+          "type": "tool_call",
+          "call_id": "tool_8f2…",
+          "tool_name": "lookup_order",
+          "tool_source": "webhook",
+          "input": "{\"order_id\":\"A1\"}",
+          "created_at": "2026-07-22T09:14:06Z"
+        },
+        {
+          "type": "tool_result",
+          "call_id": "tool_8f2…",
+          "tool_name": "lookup_order",
+          "tool_source": "webhook",
+          "status": "completed",
+          "output": "{\"state\":\"shipped\"}",
+          "output_truncated": false,
+          "error": null,
+          "latency_ms": 812,
+          "created_at": "2026-07-22T09:14:07Z"
+        },
+        {
+          "type": "message",
+          "role": "assistant",
+          "content": "Order A1 shipped yesterday.",
+          "turn_id": 3,
+          "created_at": "2026-07-22T09:14:07Z"
+        }
+      ],
+      "analysis": {
+        "status": "completed",
+        "summary": "…",
+        "data": [],
+        "criteria_results": []
+      }
+    }
+    
+
+### 
+
+​
+
+Item types
+
+`type`| What it is  
+---|---  
+`message`| One utterance. `role` is `user` or `assistant` (system prompt content is never exposed). `turn_id` groups items belonging to the same conversational turn.  
+`tool_call`| A tool invocation as it started. `input` is a JSON string, stored in full with no truncation.  
+`tool_result`| The paired outcome, matched by `call_id`. `status` is `completed` or `failed`. `latency_ms` is the execution time.  
+`transfer`| One [call transfer](https://docs.fish.audio/agents/telephony/transfers) attempt, successful or not. See Transfer items.  
+  
+Details worth knowing:
+
+  * **Role vocabulary** : the history API’s `assistant` is the same speaker the [SDK’s live events](https://docs.fish.audio/agents/deploy/web-sdk) call `agent`.
+  * **Order** : items are sorted by `created_at` ascending; a `tool_result`’s timestamp is its completion time, so long-running tools appear where they actually finished, with messages in between. Items sharing a timestamp order `message`, then `tool_call`, then `tool_result`.
+  * **`tool_source`** : where the tool ran, one of `client`, `webhook`, `builtin` (platform tools such as call transfer and hang-up), `mcp` (tools from a connected MCP server), `background` (work the agent delegated to a background task), or `unknown` (calls recorded before source attribution). Treat it as an open set. See [Tools](https://docs.fish.audio/agents/build/tools).
+  * **Payloads** : `input` and `output` are JSON strings, symmetric with the live SDK events, so one parser covers both. `output` and `error` are stored up to 256 KB; beyond that the text is cut and `output_truncated` is `true`.
+  * **Mid-call queries** : you can fetch an `active` session; you get the items persisted so far, and `analysis` is `null` until [post-call analysis](https://docs.fish.audio/agents/monitor/post-call-analysis) completes.
+  * A `tool_call` without a matching `tool_result` means the execution never resolved.
+
+
+
+`items` is a discriminated union on `type`, and it evolves additively. Ignore item types and fields you don’t recognize. New modalities and item kinds will appear without a version bump.
+
+### 
+
+​
+
+Transfer items
+
+When the agent [transfers a phone call](https://docs.fish.audio/agents/telephony/transfers), each attempt becomes one `transfer` item, including attempts that failed. Its `call_id` is the `call_id` of the `_transfer_call` `tool_call` that started it, and its `created_at` is when the attempt started, which is where it sits in the timeline. Every field is always present and is `null` when there is no value.
+    
+    
+    {
+      "type": "transfer",
+      "call_id": "tool_3c1…",
+      "destination": "Front desk",
+      "destination_type": "phone",
+      "target": "+14155550123",
+      "mode": "warm",
+      "warm_connect": "confirm",
+      "outcome": "merged",
+      "sip_status": null,
+      "dial_status": null,
+      "decline_reason": null,
+      "consult_end_reason": null,
+      "hold_started_at": "2026-07-22T09:15:40Z",
+      "hold_ended_at": "2026-07-22T09:16:25Z",
+      "dial_started_at": "2026-07-22T09:15:41Z",
+      "answered_at": "2026-07-22T09:15:57Z",
+      "ended_at": "2026-07-22T09:16:25Z",
+      "transferred_call_ended_at": "2026-07-22T09:30:11Z",
+      "transferred_call_duration_seconds": 826,
+      "transferred_call_end_reason": "caller_hangup",
+      "messages": [
+        {
+          "role": "assistant",
+          "content": "Hi, I have a caller who needs help with a delivery. Can you take the call?",
+          "created_at": "2026-07-22T09:15:59Z"
+        },
+        {
+          "role": "transfer_target",
+          "content": "Sure, put them through.",
+          "created_at": "2026-07-22T09:16:21Z"
+        }
+      ],
+      "created_at": "2026-07-22T09:15:39Z"
+    }
+    
+
+Field| Description  
+---|---  
+`call_id`| The `call_id` of the `_transfer_call` tool call that started the attempt.  
+`destination`| The destination’s name at the time of the call. An empty string when the agent has a single unnamed destination.  
+`destination_type`| `phone` or `sip`.  
+`target`| The E.164 number or SIP URI that was dialed.  
+`mode`| `cold` or `warm`.  
+`warm_connect`| `confirm`, `briefing`, or `direct` on warm transfers. `null` on cold transfers.  
+`outcome`| How the attempt ended. `merged` and `referred` are the successful ones. See [Transfer results](https://docs.fish.audio/agents/telephony/transfers#transfer-results) for every value. `null` while the attempt is in progress.  
+`sip_status`| `dial_failed` and `refer_failed` only: the final SIP response code the carrier returned, such as `486`. `null` when the carrier gave none.  
+`dial_status`| `dial_failed` and `refer_failed` only: `busy`, `no_answer`, or `failed`. See [Why a call did not connect](https://docs.fish.audio/agents/telephony/transfers#why-a-call-did-not-connect) for how each is decided.  
+`decline_reason`| `declined` only: the agent’s short summary of why your team member declined. `null` when they gave no reason. What they actually said is in `messages`.  
+`consult_end_reason`| `consult_closed` only: how the consult call ended before the calls were merged, `transfer_target_hangup` or `connection_lost`. `null` when the platform could not tell.  
+`hold_started_at`| Warm: when the caller started hearing hold music.  
+`hold_ended_at`| Warm: when the caller came off hold, connected to your team member or back with the agent.  
+`dial_started_at`| Warm: when the platform started dialing the destination.  
+`answered_at`| Warm: when the destination answered the consult call.  
+`ended_at`| When the attempt reached its outcome: the merge on a warm transfer, the completed handoff on a cold one (normally the moment the destination answered), or the failure.  
+`transferred_call_ended_at`| `merged` and `referred` only: when the call between the caller and your team member ended. See After the transfer.  
+`transferred_call_duration_seconds`| `merged` and `referred` only: how long that call lasted. Warm: from `ended_at` to `transferred_call_ended_at`. Cold: the duration on the carrier’s call record.  
+`transferred_call_end_reason`| `merged` only: how that call ended. Always `null` on cold transfers.  
+`messages`| Warm: the transcript of the private consult call. `role` is `assistant` (the agent briefing) or `transfer_target` (the person it dialed). These lines never appear among the caller’s `message` items.  
+  
+A warm transfer’s consult call is also recorded when the session records audio. Its tracks are under `transfers` in the recording response, where `transfer_id` is the item’s `call_id`.
+
+#### 
+
+​
+
+After the transfer
+
+On a successful transfer the session ends with `end_reason` `escalated`, whatever happens on the call afterwards. The three `transferred_call_*` fields describe that call between the caller and your team member. `transferred_call_end_reason` is one of:
+
+Value| Meaning  
+---|---  
+`caller_hangup`| The caller hung up. On an [outbound call](https://docs.fish.audio/agents/telephony/outbound-calls), this is the person the agent called.  
+`transfer_target_hangup`| Your team member hung up.  
+`conversation_timeout`| The call reached the agent’s [maximum call duration](https://docs.fish.audio/agents/build/configuration#call-duration). The limit counts from the start of the call, time before the transfer included.  
+`connection_lost`| One of the lines dropped. Nobody hung up.  
+`null`| The platform could not tell how the call ended.  
+  
+When the values arrive depends on the mode:
+
+  * **Warm** : when the call ends. They are `null` while the caller and your team member are still talking.
+  * **Cold** : the platform leaves the call at the handoff, so the end time and duration come from the carrier’s call record. They appear up to about an hour after the call ends. Who hung up is never known, so `transferred_call_end_reason` stays `null`.
+  * **Cold transfers on[imported SIP numbers](https://docs.fish.audio/agents/telephony/byo-sip)**: the call record stays with your carrier, so the three fields stay `null`.
+
+When `transferred_call_ended_at` is `null`, the other two are `null` as well. A `referred` item with a duration of `0` means the carrier’s record shows the destination never picked up, for example because the caller hung up while it was still ringing.
+
+### 
+
+​
+
+Correlate with live events
+
+`call_id` is the same identifier your client receives in the SDK’s `toolCallStarted` / `toolCallCompleted` / `toolCallFailed` events. Log it live, and you can align in-call UI with the post-call record: jump from a tool chip in your interface straight to the matching `tool_call` / `tool_result` pair in history. See the [Web SDK](https://docs.fish.audio/agents/deploy/web-sdk).
+
+## 
+
+​
+
+Download recordings
+
+`GET /v1/agent/sessions/{session_id}/recording` returns the recording status and signed download URLs: one audio track per speaker, so you can play or process the agent and the user separately. For sessions that never recorded (recording turned off, or no audio produced), the endpoint returns `404`.
+
+API (curl)
+    
+    
+    curl "https://api.fish.audio/v1/agent/sessions/SESSION_ID/recording" \
+      --header "Authorization: Bearer $FISH_API_KEY"
+    
+
+Signed URLs are short-lived: store the `session_id` and request fresh URLs when you need the audio. For the same reason, recordings are not embedded in the session detail response.
+
+## 
+
+​
+
+Access semantics
+
+  * Your API key sees every production session across your team’s workspaces, from all sources.
+  * A session that doesn’t exist, or belongs to another team, always returns `404`, never `403`. The recording endpoint additionally returns `404` for a session that exists but was never recorded.
+
+
+
+## 
+
+​
+
+Going further
+
+## Post-call analysis
+
+What the embedded `analysis` object contains and how to configure it.
+
+## Webhooks
+
+Push instead of poll: get notified when sessions end.
+
+## Web SDK
+
+The live `toolCall*` events that share `call_id` with history.
+
+## Inbound calls
+
+Where `caller_number` and `dialed_number` come from.
+
+Was this page helpful?
+
+YesNo
+
+[Suggest edits](https://github.com/fishaudio/docs/edit/main/agents/monitor/conversation-history.mdx)[Raise issue](https://github.com/fishaudio/docs/issues/new?title=Issue%20on%20docs&body=Path:%20/agents/monitor/conversation-history)
+
+[Keypad Menu and Input](https://docs.fish.audio/agents/telephony/keypad)[Post-call Analysis](https://docs.fish.audio/agents/monitor/post-call-analysis)

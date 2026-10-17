@@ -1,0 +1,340 @@
+---
+url: https://docs.fish.audio/features/realtime-streaming/
+title: Realtime Streaming - Fish Audio
+method: scrapling+scrapegraph
+fetched_at: 2026-10-17T10:47:39.768200+00:00
+---
+
+# Realtime Streaming - Fish Audio
+
+> Source: https://docs.fish.audio/features/realtime-streaming/
+
+## On this page
+
+  * When to use it
+  * Stream text you already have
+  * Stream from an LLM
+  * Implementation details
+    * Which mode to use
+    * Lower the latency further
+  * Control where audio generates
+  * Tune latency vs. quality
+  * Stream asynchronously
+  * Direct API (no SDK)
+  * Going further
+
+
+
+Core Features
+
+# Realtime Streaming
+
+Copy pageCopy page
+
+Stream audio as it generates for the lowest latency
+
+Copy pageCopy page
+
+Start playing audio before the whole clip is ready. Fish Audio streams speech in chunks, so your users hear the first words in a fraction of a second, essential for voice agents and live narration. Two modes: **HTTP streaming** for text you already have, and **WebSocket** for text that arrives incrementally (like LLM tokens).
+
+## API reference
+
+The live TTS WebSocket protocol.
+
+## Cookbooks
+
+LLM-to-speech and voice agents.
+
+## Best practices
+
+Tuning latency for production.
+
+## 
+
+​
+
+When to use it
+
+## Voice agents
+
+Conversational AI where time-to-first-audio matters.
+
+## LLM to speech
+
+Speak tokens as your model produces them.
+
+## Live narration
+
+Long-form content that should start playing immediately.
+
+## Interactive apps
+
+Anywhere a few hundred milliseconds of latency is noticeable.
+
+## 
+
+​
+
+Stream text you already have
+
+When you have the full string, stream the audio chunks as they generate and write or play them immediately.
+
+Python
+
+API (curl)
+
+JavaScript
+    
+    
+    from fishaudio import FishAudio
+    
+    client = FishAudio()  # reads FISH_API_KEY
+    
+    with open("out.mp3", "wb") as f:
+        for chunk in client.tts.stream(text="Streaming keeps latency low."):
+            f.write(chunk)  # or send to a speaker / socket as it arrives
+    
+    # Or collect the whole stream into one bytes object:
+    audio = client.tts.stream(text="Streaming keeps latency low.").collect()
+    
+    
+    
+    curl --request POST https://api.fish.audio/v1/tts \
+      --header "Authorization: Bearer $FISH_API_KEY" \
+      --header "Content-Type: application/json" \
+      --header "model: s2-pro" \
+      --no-buffer \
+      --data '{ "text": "Streaming keeps latency low.", "format": "mp3" }' \
+      --output out.mp3
+    
+    
+    
+    import { FishAudioClient } from "fish-audio";
+    import { createWriteStream } from "fs";
+    
+    const client = new FishAudioClient({ apiKey: process.env.FISH_API_KEY });
+    
+    // convert() returns a ReadableStream<Uint8Array>. Write each chunk the
+    // moment it arrives instead of waiting for the whole clip.
+    const stream = await client.textToSpeech.convert(
+      { text: "Streaming keeps latency low.", format: "mp3" },
+      "s2-pro"
+    );
+    
+    const file = createWriteStream("out.mp3");
+    for await (const chunk of stream) {
+      file.write(Buffer.from(chunk)); // or forward to a speaker / socket as it arrives
+    }
+    file.end();
+    
+
+`--no-buffer` tells curl to write each chunk as it arrives instead of waiting for the full response.
+
+## 
+
+​
+
+Stream from an LLM
+
+When text arrives token by token, feed a generator to `stream_websocket`. It opens a WebSocket, sends text as you produce it, and yields audio chunks back, so speech keeps pace with your model.
+
+Python
+
+API (WebSocket)
+    
+    
+    from fishaudio import FishAudio
+    from fishaudio.utils import play
+    
+    client = FishAudio()
+    
+    def llm_tokens():
+        # Replace with your real streaming LLM call
+        for token in ["The ", "first ", "move ", "sets ", "everything ", "in ", "motion."]:
+            yield token
+    
+    for chunk in client.tts.stream_websocket(llm_tokens(), reference_id="YOUR_VOICE_ID"):
+        play(chunk)  # play each chunk the moment it arrives
+    
+    
+    
+    # Token-level streaming uses the WebSocket endpoint, not curl.
+    # The Python SDK's stream_websocket() handles the protocol for you.
+    # To build it directly, see the WebSocket reference:
+    #   /api-reference/endpoint/websocket/tts-live
+    
+
+## 
+
+​
+
+Implementation details
+
+### 
+
+​
+
+Which mode to use
+
+  * **HTTP streaming (`tts.stream`)**: you have the full text up front and want low time-to-first-audio. Simplest option.
+  * **WebSocket (`tts.stream_websocket`)**: text is still being produced (LLM output, live captions). Lets you start speaking before the sentence is finished.
+
+
+
+### 
+
+​
+
+Lower the latency further
+
+  * Use a streaming-friendly format like `mp3` or `pcm`.
+  * Keep the connection warm for back-to-back generations.
+  * Pair with a cloned voice via `reference_id` (see [Voice Cloning](https://docs.fish.audio/features/voice-cloning)).
+
+
+
+## 
+
+​
+
+Control where audio generates
+
+The WebSocket buffers incoming text and generates audio once it has enough context for natural-sounding speech, so you don’t need to batch tokens yourself. When you _do_ want a clean break (end of a sentence, a deliberate pause, or the end of a turn), yield a `FlushEvent` to force generation immediately. Wrap text in a `TextEvent` if you prefer explicit events over bare strings.
+    
+    
+    from fishaudio import FishAudio
+    from fishaudio.types import TextEvent, FlushEvent
+    
+    client = FishAudio()
+    
+    def script():
+        yield TextEvent(text="First sentence. ")
+        yield "Second sentence. "
+        yield FlushEvent()        # generate everything buffered so far, now
+        yield "Third sentence."
+    
+    for chunk in client.tts.stream_websocket(script(), reference_id="YOUR_VOICE_ID"):
+        ...  # play or forward each chunk
+    
+
+## 
+
+​
+
+Tune latency vs. quality
+
+Both streaming paths take a `latency` mode:
+
+  * `latency="balanced"` (default): lowest time-to-first-audio. Use it for voice agents and live LLM output.
+  * `latency="normal"`: slightly higher latency, best audio quality. Use it for narration where you can afford a beat.
+
+
+    
+    
+    for chunk in client.tts.stream_websocket(llm_tokens(), latency="balanced"):
+        ...
+    
+
+For finer control, pass a `TTSConfig` with chunk tuning. Smaller chunks emit audio sooner (lower latency); larger chunks give the model more context (smoother prosody):
+    
+    
+    from fishaudio.types import TTSConfig
+    
+    config = TTSConfig(
+        latency="balanced",
+        chunk_length=200,       # target tokens per generated chunk
+        min_chunk_length=100,   # don't emit a chunk shorter than this
+    )
+    
+    for chunk in client.tts.stream(text="...", config=config):
+        ...
+    
+
+## 
+
+​
+
+Stream asynchronously
+
+For asyncio apps, `AsyncFishAudio` exposes the same streaming methods. `stream_websocket` accepts an async generator, so you can pipe an async LLM client straight into speech.
+    
+    
+    import asyncio
+    from fishaudio import AsyncFishAudio
+    
+    async def main():
+        client = AsyncFishAudio()
+    
+        async def llm_tokens():
+            async for token in your_async_llm():
+                yield token
+    
+        # stream_websocket is an async generator: iterate it, don't await the call
+        async for chunk in client.tts.stream_websocket(
+            llm_tokens(), reference_id="YOUR_VOICE_ID", latency="balanced"
+        ):
+            ...  # play or forward each chunk
+    
+    asyncio.run(main())
+    
+
+## 
+
+​
+
+Direct API (no SDK)
+
+Token-level streaming runs over the WebSocket endpoint. The SDK’s `stream_websocket()` handles framing for you. To speak the protocol directly, send MessagePack frames over the socket; the same `application/msgpack` payload format also works for one-shot HTTP streaming, which is faster to serialize than JSON for large reference audio:
+    
+    
+    import os
+    import httpx
+    import ormsgpack
+    
+    payload = {"text": "Streaming keeps latency low.", "format": "mp3", "latency": "balanced"}
+    
+    with httpx.stream(
+        "POST",
+        "https://api.fish.audio/v1/tts",
+        headers={
+            "Authorization": f"Bearer {os.environ['FISH_API_KEY']}",
+            "Content-Type": "application/msgpack",
+            "model": "s2-pro",
+        },
+        content=ormsgpack.packb(payload),
+    ) as r:
+        for chunk in r.iter_bytes():
+            ...  # write each chunk as it arrives
+    
+
+For the full WebSocket frame sequence, see the [live TTS protocol reference](https://docs.fish.audio/api-reference/endpoint/websocket/tts-live).
+
+## 
+
+​
+
+Going further
+
+## Text to Speech
+
+Voices, formats, and prosody for every generation.
+
+## WebSocket reference
+
+The live TTS protocol, message by message.
+
+## Streaming best practices
+
+Tuning latency for production voice apps.
+
+## Python reference
+
+`tts.stream` and `tts.stream_websocket`.
+
+Was this page helpful?
+
+YesNo
+
+[Suggest edits](https://github.com/fishaudio/docs/edit/main/features/realtime-streaming.mdx)[Raise issue](https://github.com/fishaudio/docs/issues/new?title=Issue%20on%20docs&body=Path:%20/features/realtime-streaming)
+
+[Voice Cloning](https://docs.fish.audio/features/voice-cloning)[Manage Voices](https://docs.fish.audio/features/manage-voices)

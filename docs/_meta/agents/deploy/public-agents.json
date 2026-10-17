@@ -1,0 +1,10 @@
+{
+  "url": "https://docs.fish.audio/agents/deploy/public-agents/",
+  "file": "agents/deploy/public-agents.md",
+  "title": "Public Agents - Fish Audio",
+  "method": "scrapling+scrapegraph",
+  "fetched_at": "2026-10-17T10:46:41.776206+00:00",
+  "html_len": 365516,
+  "md_len": 7210,
+  "depth": 0
+}

@@ -1,0 +1,10 @@
+{
+  "url": "https://docs.fish.audio/agents/build/voice-language/",
+  "file": "agents/build/voice-language.md",
+  "title": "Voice & Language - Fish Audio",
+  "method": "scrapling+scrapegraph",
+  "fetched_at": "2026-10-17T10:46:41.163078+00:00",
+  "html_len": 452505,
+  "md_len": 12656,
+  "depth": 0
+}

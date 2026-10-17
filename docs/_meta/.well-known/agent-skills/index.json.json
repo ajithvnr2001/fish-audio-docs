@@ -1,0 +1,10 @@
+{
+  "url": "https://docs.fish.audio/.well-known/agent-skills/index.json",
+  "file": ".well-known/agent-skills/index.json.md",
+  "title": "https://docs.fish.audio/.well-known/agent-skills/index.json",
+  "method": "scrapling+scrapegraph",
+  "fetched_at": "2026-10-17T10:47:45.221554+00:00",
+  "html_len": 1792,
+  "md_len": 1901,
+  "depth": 1
+}

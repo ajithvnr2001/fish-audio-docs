@@ -1,0 +1,10 @@
+{
+  "url": "https://docs.fish.audio/developer-guide/sdk-guide/cookbook/telephony-8khz-audio/",
+  "file": "developer-guide/sdk-guide/cookbook/telephony-8khz-audio.md",
+  "title": "Telephony-grade audio (8 kHz) for IVR and phone - Fish Audio",
+  "method": "scrapling+scrapegraph",
+  "fetched_at": "2026-10-17T10:47:36.052083+00:00",
+  "html_len": 376559,
+  "md_len": 4909,
+  "depth": 0
+}

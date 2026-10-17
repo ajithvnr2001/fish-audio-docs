@@ -1,0 +1,141 @@
+---
+url: https://docs.fish.audio/agents/build/system-tools/
+title: System Tools - Fish Audio
+method: scrapling+scrapegraph
+fetched_at: 2026-10-17T10:46:40.062147+00:00
+---
+
+# System Tools - Fish Audio
+
+> Source: https://docs.fish.audio/agents/build/system-tools/
+
+## On this page
+
+  * Toggle in the Builder
+  * Toggle via the API
+  * Farewell
+    * Questions before hanging up
+  * Transfer call
+  * Going further
+
+
+
+Tools
+
+# System Tools
+
+Copy pageCopy page
+
+Built-in agent capabilities like hanging up the call, enabled per agent
+
+Copy pageCopy page
+
+System tools are capabilities built into the platform. There is nothing to create or host. Each agent simply enables the ones it needs.
+
+Tool| Key| What it does  
+---|---|---  
+Hang up call| `hang_up_call`| Lets the agent end the call itself.  
+  
+Unlike [webhook tools](https://docs.fish.audio/agents/build/webhook-tools), system tools are not workspace resources shared across agents. The on/off state is stored per agent.
+
+## 
+
+​
+
+Toggle in the Builder
+
+Open your agent’s **Tools** page in the Builder. The **System tools** card holds the **Hang up call** switch.
+
+## 
+
+​
+
+Toggle via the API
+
+Over the REST API, system tool switches are part of the agent’s configuration, in the same `tools` section that holds its attached webhook tools. See [Configuration](https://docs.fish.audio/agents/build/configuration) for reading and updating an agent’s config.
+
+## 
+
+​
+
+Farewell
+
+The agent hangs up by calling the built-in `_end_call` tool, and the call ends once the agent finishes speaking. Choose what callers hear before that:
+
+Mode| Behavior  
+---|---  
+**Generated** (default)| The agent writes a short goodbye into the tool call’s `message`, and the caller hears it.  
+**Fixed message**|  The agent ends with the exact text you provide.  
+**Off**|  The call ends as soon as the agent finishes its current reply, with no extra goodbye.  
+  
+In every mode, anything the agent says in the same reply as the `_end_call` call is spoken first. In **Generated** mode, `message` is said only when that reply says nothing, so callers never hear two goodbyes. In the Builder, these options appear as **Farewell** under **Hang up call** once the switch is on. Over the API, the mode is `tools.system_tools.hang_up_call_farewell_mode` (`generated`, `fixed`, or `off`) and the fixed text is `tools.system_tools.hang_up_call_farewell_message` (up to 1,000 characters). The message accepts the same `{{placeholders}}` as the system prompt (see [Dynamic variables](https://docs.fish.audio/agents/build/dynamic-variables)). A fixed mode with an empty message falls back to **Generated**.
+    
+    
+    curl --request PATCH "https://api.fish.audio/v1/agent/agents/$AGENT_ID/config" \
+      --header "Authorization: Bearer $FISH_API_KEY" \
+      --header "Content-Type: application/json" \
+      --data '{
+        "tools": {
+          "system_tools": {
+            "hang_up_call": true,
+            "hang_up_call_farewell_mode": "fixed",
+            "hang_up_call_farewell_message": "Thanks for calling Acme. Goodbye!"
+          }
+        }
+      }'
+    
+
+### 
+
+​
+
+Questions before hanging up
+
+Turn on **Don’t hang up on a question** to stop the agent from hanging up on a question. With it on, if the `message` the caller would hear contains a question mark, for example “Is there anything else I can help you with?”, the `_end_call` call fails and the call stays open. The agent asks the question in its reply, waits for the answer, and calls `_end_call` again after that. The switch is under **Hang up call** on the **Tools** page and appears when **Farewell** is **Generated**. Over the API, set `tools.system_tools.hang_up_call_refuse_questions` to `true`:
+    
+    
+    curl --request PATCH "https://api.fish.audio/v1/agent/agents/$AGENT_ID/config" \
+      --header "Authorization: Bearer $FISH_API_KEY" \
+      --header "Content-Type: application/json" \
+      --data '{ "tools": { "system_tools": { "hang_up_call_refuse_questions": true } } }'
+    
+
+The switch has no effect with a **Fixed message** or **Off**. Agent tests and simulations follow the same setting.
+
+## 
+
+​
+
+Transfer call
+
+`_transfer_call` has no switch of its own: it is enabled automatically once the agent has a transfer destination configured, and only on phone sessions (web sessions have no call to transfer). See [Transfers](https://docs.fish.audio/agents/telephony/transfers) for configuring destinations and everything else about transfers.
+
+## 
+
+​
+
+Going further
+
+## Tools overview
+
+How webhook, client, and system tools fit together.
+
+## Webhook tools
+
+Call your own HTTP endpoints from a conversation.
+
+## Client tools
+
+Run tool calls inside your own app via the SDK.
+
+## Voice & language
+
+Configure the agent’s voice and speaking language.
+
+Was this page helpful?
+
+YesNo
+
+[Suggest edits](https://github.com/fishaudio/docs/edit/main/agents/build/system-tools.mdx)[Raise issue](https://github.com/fishaudio/docs/issues/new?title=Issue%20on%20docs&body=Path:%20/agents/build/system-tools)
+
+[Client Tools](https://docs.fish.audio/agents/build/client-tools)[Dynamic Variables](https://docs.fish.audio/agents/build/dynamic-variables)
