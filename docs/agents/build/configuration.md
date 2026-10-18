@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/agents/build/configuration/
 title: Configuration - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:46:40.626386+00:00
+fetched_at: 2026-10-18T12:09:26.886611+00:00
 ---
 
 # Configuration - Fish Audio
@@ -17,6 +17,7 @@ fetched_at: 2026-10-17T10:46:40.626386+00:00
   * Conversation settings
     * Turn-taking
     * Interruptions
+    * Echo guard
     * Call duration
     * Recording
     * Timezone
@@ -118,6 +119,22 @@ Interruptions
 
 ​
 
+Echo guard
+
+Callers’ devices and the phone network normally cancel the agent’s echo, but in a few calls (under 3%) some echo gets through in the agent’s first seconds and cuts it off. `conversation.echo_guard` (**Echo guard** in the Builder) prevents this. For 3 seconds after the agent first starts talking, the caller can’t interrupt it, and what the caller says over the agent is dropped. [Keypad entries](https://docs.fish.audio/agents/telephony/keypad#keypad-input) and the [web SDK](https://docs.fish.audio/agents/deploy/web-sdk)’s `interrupt()` still work. Each [channel](https://docs.fish.audio/agents/build/dynamic-variables#system-variables) has its own key. Set it to `true`, `false`, or `null` for the default.
+
+Key| Builder label| Default  
+---|---|---  
+`web_voice`| **Web calls** , including [Preview calls](https://docs.fish.audio/agents/test/preview-calls)| On  
+`phone_inbound`| **Inbound phone calls**|  On  
+`phone_outbound`| **Outbound phone calls**|  Off  
+  
+Turn it off if callers should be able to interrupt the agent within those 3 seconds.
+
+### 
+
+​
+
 Call duration
 
 `conversation.max_duration_seconds` (60–3600, default `1800`) ends the session automatically when the limit is reached.
@@ -197,6 +214,7 @@ Response (abridged)
         "interruptible": true,
         "interruption_sensitivity": "balanced",
         "interruption_ignore_phrases": [],
+        "echo_guard": null,
         "speculative_response": true,
         "timezone": ""
       }

@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/agents/build/voice-language/
 title: Voice & Language - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:46:41.162773+00:00
+fetched_at: 2026-10-18T12:09:26.957216+00:00
 ---
 
 # Voice & Language - Fish Audio
@@ -170,8 +170,8 @@ Text-to-speech model
 
 Value| Model| Status| Notes  
 ---|---|---|---  
-`s2.1-pro`| S2.1 Pro| Default| The production model every agent has spoken with so far.  
-`drama-3`| Drama 3| Available| The directable model from [Drama 3](https://docs.fish.audio/features/text-to-speech/drama-3). Time to first audio is comparable to S2.1 Pro.  
+`drama-3`| Drama 3| Default| The directable model from [Drama 3](https://docs.fish.audio/features/text-to-speech/drama-3). Time to first audio is comparable to S2.1 Pro.  
+`s2.1-pro`| S2.1 Pro| Available|   
   
 Choose it with the **Text-to-speech model** selector in the Builder’s voice section, or via the API:
 

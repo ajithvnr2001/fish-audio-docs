@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/agents/pricing/
 title: Pricing - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:46:43.580093+00:00
+fetched_at: 2026-10-18T12:09:27.320322+00:00
 ---
 
 # Pricing - Fish Audio
@@ -16,6 +16,7 @@ fetched_at: 2026-10-17T10:46:43.580093+00:00
     * Transfers
     * Monthly fees
     * LLM models
+    * Simulation tests
     * Outbound destinations
   * Trial balance
   * Billing
@@ -30,7 +31,7 @@ Get Started
 
 Copy pageCopy page
 
-Rates for conversations, LLM usage, telephony, and transfers, plus the trial balance and billing
+Rates for conversations, LLM usage, telephony, transfers, and simulation tests, plus the trial balance and billing
 
 Copy pageCopy page
 
@@ -103,6 +104,27 @@ Every model has a per-token cost. For now the conversation rate covers it for th
 
 ​
 
+Simulation tests
+
+A [Simulation test](https://docs.fish.audio/agents/test/agent-tests#simulation-tests) has the agent talk to a simulated user in text, then an LLM judge scores the conversation. There is no conversation rate. Each run that ends in **Pass** or **Fail** is charged:
+
+  * A platform fee of $0.003 per agent reply. A [fixed first message](https://docs.fish.audio/agents/build/configuration#first-message) is spoken as written and is not counted, a generated one is.
+  * The tokens of the agent, the simulated user, and the judge, each at the rate of the model it ran on. An agent on a [custom LLM](https://docs.fish.audio/agents/build/custom-llm) endpoint carries no charge for its own tokens.
+
+A run that ends in **Error** is not charged, and every repeat of a test is a run of its own. Single Turn and Tool tests are free. With no conversation rate to cover them, the basic models are billed on their tokens in Simulation tests. Prices are in USD per 1 million tokens:
+
+Model| Input| Cached input| Output  
+---|---|---|---  
+Gemini 3.5 Flash Lite| $0.30| $0.03| $2.50  
+GPT-5.6 Luna| $0.20| $0.02| $1.20  
+Gemma 4 26B| $0.10| $0.05| $0.30  
+  
+The other models are billed at the same rates as in conversations. The result of each run shows what it was charged, and the [Agents billing page](https://fish.audio/app/agents/billing) itemizes the platform fee and each participant’s tokens.
+
+### 
+
+​
+
 Outbound destinations
 
 The standard phone surcharge applies to inbound calls and most outbound calls. Outbound calls to the destinations below replace it with a rate that depends on the number dialed:
@@ -125,8 +147,8 @@ Trial balance
 
 Every account starts with a one-time **$5 trial balance** , about 60 minutes of conversation at the base rate. It pays for real usage at the normal rates:
 
-  * Every charge draws on it first: web sessions, phone calls and their surcharges, transferred call time, number rental, and LLM tokens on token-billed models. Only what the trial balance does not cover is charged to your API credit.
-  * A session can start on any model, including token-billed ones, as long as the trial balance or your API credit is above zero.
+  * Every charge draws on it first: web sessions, phone calls and their surcharges, transferred call time, number rental, LLM tokens on token-billed models, and Simulation test runs. Only what the trial balance does not cover is charged to your API credit.
+  * A session can start on any model, including token-billed ones, as long as the trial balance or your API credit is above zero. The same goes for running Simulation tests.
   * [Preview calls](https://docs.fish.audio/agents/test/preview-calls) in the Builder are free on every LLM, including token-billed ones, and never draw on the trial balance.
   * The [Agents billing page](https://fish.audio/app/agents/billing) shows how much of the trial balance is left, and the Agents home page shows it as a usage meter.
 
@@ -138,7 +160,7 @@ Every account starts with a one-time **$5 trial balance** , about 60 minutes of 
 
 Billing
 
-Usage is charged to your **API credit** , the same prepaid balance as the Fish Audio speech APIs. Sessions are charged when they end, and number rental is charged daily. Every charge is listed on the [Agents billing page](https://fish.audio/app/agents/billing).
+Usage is charged to your **API credit** , the same prepaid balance as the Fish Audio speech APIs. Sessions are charged when they end, Simulation test runs when they finish, and number rental is charged daily. Every charge is listed on the [Agents billing page](https://fish.audio/app/agents/billing).
 
 ## 
 
@@ -158,6 +180,8 @@ Phone surcharge 3 min × $0.01 = $0.03
 Warm transfer 5 min × $0.025 = $0.125| $0.335  
 Web conversation, 5 min, token-billed LLM| Conversation 5 min × $0.06 = $0.30  
 LLM usage: the session’s tokens at the LLM’s rates| $0.30 + LLM usage  
+Simulation test run with 6 agent replies| Platform fee 6 × $0.003 = $0.018  
+LLM usage: the agent’s, the simulated user’s, and the judge’s tokens| $0.018 + LLM usage  
   
 ## 
 

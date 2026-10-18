@@ -1,10 +1,10 @@
 # Guide: scrape + update Fish Audio docs (coder end-to-end)
 
 
-Last verified: 2026-10-17 (rewritten daily by GitHub Actions).
+Last verified: 2026-10-18 (rewritten daily by GitHub Actions).
 Base: `/data/opencode/fishaudio/` · Target: `https://docs.fish.audio/` (6,854 sitemap URLs → ~653 canonical after `?hl=` locale dedupe + linked reference domains)
 
-Last verified: 2026-10-17 (stamp rewritten daily by the GitHub Action).
+Last verified: 2026-10-18 (stamp rewritten daily by the GitHub Action).
 
 ## 1. Scrape one page (all 3 libs)
 
