@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/api-reference/sdk/python/exceptions/
 title: Exceptions - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-19T14:52:39.063107+00:00
+fetched_at: 2026-10-20T12:52:00.268765+00:00
 ---
 
 # Exceptions - Fish Audio

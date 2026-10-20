@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/developer-guide/getting-started/changelog/
 title: Changelog - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:47:31.051612+00:00
+fetched_at: 2026-10-20T12:52:01.189840+00:00
 ---
 
 # Changelog - Fish Audio
@@ -22,6 +22,22 @@ Copy pageCopy page
 Complete release history and version updates for all Fish Audio products
 
 Copy pageCopy page
+
+​
+
+More normalization languages
+
+Fish Audio
+
+October 20, 2026
+
+## 
+
+​
+
+More normalization languages
+
+Text normalization now has rules for Turkish (`tr`) and Tagalog (`tl`, `fil`), and Portuguese follows Brazilian conventions, so `pt-BR` is supported too. Without `language`, Turkish and Tagalog text is detected, and Chinese written mostly in Traditional characters uses the Traditional Chinese rules.[Supported normalization languages](https://docs.fish.audio/features/text-to-speech#supported-normalization-languages)
 
 ​
 

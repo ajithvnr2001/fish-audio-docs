@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/developer-guide/resources/coding-agents/
 title: AI Coding Assistants - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:47:34.028225+00:00
+fetched_at: 2026-10-20T12:52:00.990031+00:00
 ---
 
 # AI Coding Assistants - Fish Audio
@@ -115,7 +115,7 @@ Once installed, ask your agent in plain language; it will use the correct client
 
 Or connect via MCP
 
-The [Fish Audio MCP server](https://docs.fish.audio/overview/mcp) at `https://api.fish.audio/mcp` gives your agent tools instead of docs: it can search the voice library, generate speech, and transcribe audio with your Fish Audio account (OAuth sign-in, no API key). See the [MCP server guide](https://docs.fish.audio/overview/mcp) for client setup and the tool list.
+The [Fish Audio MCP server](https://docs.fish.audio/overview/mcp) at `https://api.fish.audio/mcp` gives your agent tools instead of docs: it can search the voice library, clone voices, generate speech, transcribe audio, create images and videos, and produce Story Studio projects with your Fish Audio account (OAuth sign-in, no API key). See the [MCP server guide](https://docs.fish.audio/overview/mcp) for client setup and the [tool list](https://docs.fish.audio/overview/mcp/tools) for what the agent can call.
 
 This site also exposes [llms.txt](https://docs.fish.audio/llms.txt) and [llms-full.txt](https://docs.fish.audio/llms-full.txt) for agents that fetch docs directly.
 

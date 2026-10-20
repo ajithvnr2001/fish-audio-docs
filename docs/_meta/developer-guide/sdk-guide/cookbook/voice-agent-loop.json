@@ -3,8 +3,5 @@
   "file": "developer-guide/sdk-guide/cookbook/voice-agent-loop.md",
   "title": "Build a voice agent loop: speech in, reply, speech out - Fish Audio",
   "method": "scrapling+scrapegraph",
-  "fetched_at": "2026-10-17T10:47:36.736577+00:00",
-  "html_len": 419980,
-  "md_len": 8417,
-  "depth": 0
+  "fetched_at": "2026-10-20T12:52:00.955064+00:00"
 }

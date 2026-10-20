@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/agents/monitor/conversation-history/
 title: Conversation History - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:46:43.056482+00:00
+fetched_at: 2026-10-20T12:51:59.559392+00:00
 ---
 
 # Conversation History - Fish Audio
@@ -95,6 +95,7 @@ Each row carries the session facts:
           "caller_number": "+15551234567",
           "dialed_number": "+14155550100",
           "sip_call_id": "7f3a9c@sbc.example.com",
+          "call_sid": "CA5d3a…",
           "started_at": "2026-07-22T09:14:02Z",
           "ended_at": "2026-07-22T09:16:05Z",
           "duration_seconds": 123,
@@ -106,7 +107,7 @@ Each row carries the session facts:
     }
     
 
-`caller_number` and `dialed_number` are set for phone sessions only (E.164) and are `null` for web sessions. `sip_call_id` is the SIP `Call-ID` of the call’s INVITE. It is `null` on web sessions and on outbound calls that were never answered. See [Match calls with your SIP records](https://docs.fish.audio/agents/telephony/byo-sip#match-calls-with-your-sip-records). `name` is the display name you passed when creating the session (`null` when omitted), `end_user_id` is the end-user identifier you passed (`null` when omitted), and `metadata` echoes back whatever you attached when creating the session.
+`caller_number` and `dialed_number` are set for phone sessions only (E.164) and are `null` for web sessions. `sip_call_id` is the SIP `Call-ID` of the call’s INVITE. It is `null` on web sessions and on outbound calls that were never answered. See [Match calls with your SIP records](https://docs.fish.audio/agents/telephony/byo-sip#match-calls-with-your-sip-records). `call_sid` is the carrier’s id of the call: Twilio’s CallSid on an inbound call through a Twilio number, the same value the [inbound call webhook](https://docs.fish.audio/agents/monitor/webhooks#inbound-call-webhook) sends. It is `null` on other sessions. `name` is the display name you passed when creating the session (`null` when omitted), `end_user_id` is the end-user identifier you passed (`null` when omitted), and `metadata` echoes back whatever you attached when creating the session.
 
 ### 
 
@@ -146,6 +147,7 @@ Parameter| Behavior
 `caller_number`| Exact match on the caller’s E.164 number; a bare number gets `+` prepended automatically  
 `sip_call_id`| Exact match on the SIP `Call-ID` of the call’s INVITE, for looking up the session behind a carrier CDR entry  
 `end_user_id`| Exact, case-sensitive match on the `end_user_id` you set when [creating the session](https://docs.fish.audio/agents/deploy/authenticated-sessions), for listing one customer’s sessions  
+`call_sid`| Exact match on `call_sid`, for looking up the session behind an [inbound call webhook](https://docs.fish.audio/agents/monitor/webhooks#inbound-call-webhook) request  
 `created_after` / `created_before`| ISO 8601 timestamps  
   
 `pending` sessions (a session was created but no participant ever connected) are excluded by default. Pass `status=pending` explicitly to see them. Preview calls made from the Builder never appear in this API.

@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/developer-guide/sdk-guide/cookbook/voice-agent-loop/
 title: Build a voice agent loop: speech in, reply, speech out - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:47:36.735653+00:00
+fetched_at: 2026-10-20T12:52:00.954778+00:00
 ---
 
 # Build a voice agent loop: speech in, reply, speech out - Fish Audio
@@ -197,6 +197,8 @@ Reply in the caller’s voice
 
 `reference_id` points the reply at a saved voice. Drop it to use the default voice, or clone the caller’s voice from the same clip you just transcribed by passing `references` instead. See [Instant voice cloning](https://docs.fish.audio/developer-guide/sdk-guide/cookbook/instant-voice-cloning).
 
+This recipe handles one recorded utterance at a time. To listen to a live conversation, with turn detection, interruptions and backchannels, see [Build a realtime voice agent](https://docs.fish.audio/developer-guide/sdk-guide/cookbook/realtime-voice-agent).
+
 ## 
 
 ​
@@ -204,6 +206,7 @@ Reply in the caller’s voice
 Related
 
   * [Speech-to-Text guide](https://docs.fish.audio/features/speech-to-text)
+  * [Build a realtime voice agent](https://docs.fish.audio/developer-guide/sdk-guide/cookbook/realtime-voice-agent)
   * [Realtime: LLM tokens → speech](https://docs.fish.audio/developer-guide/sdk-guide/cookbook/realtime-llm-to-speech)
   * [Stream TTS to a file](https://docs.fish.audio/developer-guide/sdk-guide/cookbook/streaming-to-file)
 
@@ -215,4 +218,4 @@ YesNo
 
 [Suggest edits](https://github.com/fishaudio/docs/edit/main/developer-guide/sdk-guide/cookbook/voice-agent-loop.mdx)[Raise issue](https://github.com/fishaudio/docs/issues/new?title=Issue%20on%20docs&body=Path:%20/developer-guide/sdk-guide/cookbook/voice-agent-loop)
 
-[Realtime: LLM tokens → speech](https://docs.fish.audio/developer-guide/sdk-guide/cookbook/realtime-llm-to-speech)[Discover and reuse a Voice Library voice](https://docs.fish.audio/developer-guide/sdk-guide/cookbook/discover-library-voice)
+[Realtime: LLM tokens → speech](https://docs.fish.audio/developer-guide/sdk-guide/cookbook/realtime-llm-to-speech)[Build a realtime voice agent: streaming speech in, reply, speech out](https://docs.fish.audio/developer-guide/sdk-guide/cookbook/realtime-voice-agent)

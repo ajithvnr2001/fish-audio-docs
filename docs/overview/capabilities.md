@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/overview/capabilities/
 title: Overview - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:47:41.149611+00:00
+fetched_at: 2026-10-20T12:52:01.144815+00:00
 ---
 
 # Overview - Fish Audio
@@ -106,7 +106,7 @@ For speech to text, select the model with the `model` header on `POST /v1/asr`:
   * **`transcribe-1-pro`** : the recommended model, for everything from short clips to multi-speaker conversations (speaker markers and speaker turns) and long recordings, with inline emotion cues. Send `model: transcribe-1-pro` explicitly.
   * **`transcribe-1`** : general transcription of short recordings. A request whose `model` header is missing or not an exact match is served by this model.
 
-See [Models Overview](https://docs.fish.audio/developer-guide/models-pricing/models-overview) and [Choosing a Model](https://docs.fish.audio/developer-guide/models-pricing/choosing-a-model) for the full lineup and languages, and [Speech to Text](https://docs.fish.audio/features/speech-to-text#input-audio) for transcription formats and limits.
+To transcribe live audio, `transcribe-stream-1` streams transcripts turn by turn over a WebSocket, with turn detection for voice agents. It is available through the API; see [Realtime Speech to Text](https://docs.fish.audio/features/speech-to-text/realtime). See [Models Overview](https://docs.fish.audio/developer-guide/models-pricing/models-overview) and [Choosing a Model](https://docs.fish.audio/developer-guide/models-pricing/choosing-a-model) for the full lineup and languages, and [Speech to Text](https://docs.fish.audio/features/speech-to-text#input-audio) for transcription formats and limits.
 
 ## 
 

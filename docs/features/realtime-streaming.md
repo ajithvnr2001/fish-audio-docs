@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/features/realtime-streaming/
 title: Realtime Streaming - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:47:39.768200+00:00
+fetched_at: 2026-10-20T12:52:00.900231+00:00
 ---
 
 # Realtime Streaming - Fish Audio
@@ -36,6 +36,8 @@ Stream audio as it generates for the lowest latency
 Copy pageCopy page
 
 Start playing audio before the whole clip is ready. Fish Audio streams speech in chunks, so your users hear the first words in a fraction of a second, essential for voice agents and live narration. Two modes: **HTTP streaming** for text you already have, and **WebSocket** for text that arrives incrementally (like LLM tokens).
+
+This page covers text to speech. To transcribe live audio, see [Realtime Speech to Text](https://docs.fish.audio/features/speech-to-text/realtime).
 
 ## API reference
 

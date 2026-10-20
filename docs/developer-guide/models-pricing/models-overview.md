@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/developer-guide/models-pricing/models-overview/
 title: Models Overview - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:47:33.560339+00:00
+fetched_at: 2026-10-20T12:52:00.138532+00:00
 ---
 
 # Models Overview - Fish Audio
@@ -132,12 +132,13 @@ S1 is deprecated and will be retired on December 31, 2026. After that date, requ
 
 Speech-to-Text Models
 
-We recommend `transcribe-1-pro` for speech to text. Both ASR models use `POST /v1/asr`, and you select one with the `model` HTTP header, written exactly as shown. Send `model: transcribe-1-pro` with every request: if the header is missing or its value is not an exact match, the request is served and billed as `transcribe-1`, and no error is returned.
+We recommend `transcribe-1-pro` for transcribing recordings. Both file models use `POST /v1/asr`, and you select one with the `model` HTTP header, written exactly as shown. Send `model: transcribe-1-pro` with every request: if the header is missing or its value is not an exact match, the request is served and billed as `transcribe-1`, and no error is returned. To transcribe live audio, use `transcribe-stream-1` on the realtime WebSocket, `wss://api.fish.audio/v1/asr/realtime`, where it is the default model.
 
 Model| Capabilities  
 ---|---  
 `transcribe-1-pro` (recommended)| Anything from short clips to long recordings (up to 60 minutes), including multi-speaker conversations. Speaker markers in `text`, structured `speaker_turns` with start and end times, speaker-count hints, and inline emotion and vocal-event cues such as `[高兴]` (happy) and `[laughter]` (optional via `tag_audio_events`). Supports optional timestamps.  
 `transcribe-1`| General transcription of short recordings, with optional timestamps. Serves requests whose `model` header is missing or not an exact match.  
+`transcribe-stream-1`| Live audio streamed over the [realtime WebSocket](https://docs.fish.audio/features/speech-to-text/realtime), transcribed turn by turn while people speak. Turn detection for voice agents (eager end of turn, backchannel detection and background awareness), live drafts, conversation context, speaker tags and sound tags. Sessions up to 60 minutes.  
   
 Pro labels speakers with inline `<|speaker:N|>` markers in `text`, alongside emotion cues. A label identifies the same speaker within one response only. When you request timestamps (`ignore_timestamps=false`), Pro also returns `speaker_turns`, a structured list of turns with each turn’s speaker, text, and start and end times, unless you send `diarize=false`. Timestamped `segments` are word-level, contain spoken words without these markers, and do not expose per-segment speaker IDs. See the [multi-speaker response example](https://docs.fish.audio/features/speech-to-text#multi-speaker-conversations) and [Speaker turns](https://docs.fish.audio/features/speech-to-text#speaker-turns). Pro has its own optional request fields: `tag_audio_events`, `diarize`, and the speaker-count hints `num_speakers`, `min_speakers`, and `max_speakers`. Speaker-count hints are applied on a best-effort basis and may have no effect on short recordings. For supported audio formats, file size, and length, see [Input audio](https://docs.fish.audio/features/speech-to-text#input-audio) and [Limits](https://docs.fish.audio/features/speech-to-text#limits). For costs, see [ASR pricing](https://docs.fish.audio/developer-guide/models-pricing/pricing-and-rate-limits#automatic-speech-recognition-asr-models).
 
@@ -296,4 +297,4 @@ YesNo
 
 [Suggest edits](https://github.com/fishaudio/docs/edit/main/developer-guide/models-pricing/models-overview.mdx)[Raise issue](https://github.com/fishaudio/docs/issues/new?title=Issue%20on%20docs&body=Path:%20/developer-guide/models-pricing/models-overview)
 
-[MCP Server](https://docs.fish.audio/overview/mcp)[Choosing a Model](https://docs.fish.audio/developer-guide/models-pricing/choosing-a-model)
+[Tools](https://docs.fish.audio/overview/mcp/tools)[Choosing a Model](https://docs.fish.audio/developer-guide/models-pricing/choosing-a-model)

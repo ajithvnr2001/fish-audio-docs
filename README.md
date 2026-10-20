@@ -1,6 +1,6 @@
 # Fish Audio Docs — End-to-End Crawler
 
-> Last verified: 2026-10-19 — see `docs/_last_verified.json` (rewritten daily by GitHub Actions).
+> Last verified: 2026-10-20 — see `docs/_last_verified.json` (rewritten daily by GitHub Actions).
 
 Crawls **https://docs.fish.audio/** completely (175 sitemap pages: api-reference, developer-guide, agents, features, overview) and saves clean markdown. Three stacks: **Scrapling** → **Crawl4AI** → **ScrapeGraphAI** (local, no LLM key). `llms.txt` (curated agent index) + `llms-full.txt` (full raw markdown) snapshotted under `docs/_llms/`.
 

@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/features/speech-to-text/
 title: Speech to Text - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:47:39.596193+00:00
+fetched_at: 2026-10-20T12:52:00.839636+00:00
 ---
 
 # Speech to Text - Fish Audio
@@ -34,7 +34,7 @@ fetched_at: 2026-10-17T10:47:39.596193+00:00
 
 
 
-Core Features
+Speech to Text
 
 # Speech to Text
 
@@ -44,7 +44,7 @@ Transcribe audio with transcribe-1-pro, including word-level timestamps, speaker
 
 Copy pageCopy page
 
-Turn spoken audio into text with `transcribe-1-pro`, Fish Audio’s recommended automatic speech recognition (ASR) model. Send an audio file to `POST /v1/asr` with the header `model: transcribe-1-pro` to receive a transcript, its duration, and optional word-level timestamps. Pro handles multi-speaker conversations and recordings up to 60 minutes: it marks speakers inline in the transcript, returns a structured list of speaker turns when you request timestamps, and keeps emotion and vocal-event cues.
+Turn spoken audio into text with `transcribe-1-pro`, Fish Audio’s recommended automatic speech recognition (ASR) model. Send an audio file to `POST /v1/asr` with the header `model: transcribe-1-pro` to receive a transcript, its duration, and optional word-level timestamps. Pro handles multi-speaker conversations and recordings up to 60 minutes: it marks speakers inline in the transcript, returns a structured list of speaker turns when you request timestamps, and keeps emotion and vocal-event cues. To transcribe live audio as people speak, with turn detection for voice agents, see [Realtime Speech to Text](https://docs.fish.audio/features/speech-to-text/realtime).
 
 ## Use it in the web app
 
@@ -655,6 +655,10 @@ The response is the same as for multipart: `text`, `duration` (seconds), `segmen
 
 Going further
 
+## Transcribe live audio
+
+Realtime transcription over a WebSocket, with turn detection for voice agents.
+
 ## Generate speech
 
 The reverse direction: text to lifelike audio.
@@ -673,4 +677,4 @@ YesNo
 
 [Suggest edits](https://github.com/fishaudio/docs/edit/main/features/speech-to-text.mdx)[Raise issue](https://github.com/fishaudio/docs/issues/new?title=Issue%20on%20docs&body=Path:%20/features/speech-to-text)
 
-[Japanese Phoneme Control](https://docs.fish.audio/developer-guide/core-features/fine-grained-control/japanese)[Voice Design](https://docs.fish.audio/features/voice-design)
+[Japanese Phoneme Control](https://docs.fish.audio/developer-guide/core-features/fine-grained-control/japanese)[Realtime](https://docs.fish.audio/features/speech-to-text/realtime)

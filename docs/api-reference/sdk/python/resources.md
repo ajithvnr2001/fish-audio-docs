@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/api-reference/sdk/python/resources/
 title: Resources - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-19T14:52:38.983493+00:00
+fetched_at: 2026-10-20T12:52:00.581077+00:00
 ---
 
 # Resources - Fish Audio

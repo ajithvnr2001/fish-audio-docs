@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/agents/telephony/inbound-calls/
 title: Inbound Calls - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:46:44.943329+00:00
+fetched_at: 2026-10-20T12:51:59.033169+00:00
 ---
 
 # Inbound Calls - Fish Audio
@@ -100,6 +100,7 @@ Field| Description
 `caller_number`| The caller’s number, E.164. `null` for non-phone sessions.  
 `dialed_number`| The workspace number that was called, E.164. `null` for non-phone sessions.  
 `sip_call_id`| The SIP `Call-ID` of the carrier’s INVITE, for [matching your SIP records](https://docs.fish.audio/agents/telephony/byo-sip#match-calls-with-your-sip-records).  
+`call_sid`| Twilio’s CallSid on a call through a Twilio number, the same value the [inbound call webhook](https://docs.fish.audio/agents/monitor/webhooks#inbound-call-webhook) sends. `null` on other calls.  
   
 List calls with the standard sessions endpoint. The `caller_number` filter is an exact match; bare numbers are automatically prefixed with `+`, so `15551234567` matches `+15551234567`:
     

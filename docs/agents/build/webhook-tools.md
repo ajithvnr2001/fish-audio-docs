@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/agents/build/webhook-tools/
 title: Webhook Tools - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:46:41.306104+00:00
+fetched_at: 2026-10-20T12:52:00.029115+00:00
 ---
 
 # Webhook Tools - Fish Audio
@@ -90,7 +90,7 @@ Choose a timeout (1–120 seconds, or up to 300 for background tools; default 30
 
 Argument templating
 
-Reference any declared argument with `{{name}}`: in the URL, in header values, or in the body template. The platform substitutes the values the agent supplies before sending the request. [Dynamic variables](https://docs.fish.audio/agents/build/dynamic-variables#custom-variables-in-webhook-tools) work in the same places: your custom variables, such as a customer id returned by the inbound call webhook, and system variables such as `{{system.caller_number}}` or `{{system.today}}`. They are filled when the session starts, before the agent supplies any argument. An argument wins over a custom variable of the same name.
+Reference any declared argument with `{{name}}`: in the URL, in header values, or in the body template. The platform substitutes the values the agent supplies before sending the request. [Dynamic variables](https://docs.fish.audio/agents/build/dynamic-variables#custom-variables-in-webhook-tools) work in the same places: your custom variables, such as a customer id returned by the inbound call webhook, and system variables such as `{{system.session_id}}`, `{{system.caller_number}}` or `{{system.today}}`. They are filled when the session starts, before the agent supplies any argument. An argument wins over a custom variable of the same name.
 
 Endpoint URL
     

@@ -3,8 +3,5 @@
   "file": "features/speech-to-text.md",
   "title": "Speech to Text - Fish Audio",
   "method": "scrapling+scrapegraph",
-  "fetched_at": "2026-10-17T10:47:39.597675+00:00",
-  "html_len": 693338,
-  "md_len": 29130,
-  "depth": 0
+  "fetched_at": "2026-10-20T12:52:00.839991+00:00"
 }

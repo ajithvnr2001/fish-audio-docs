@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/agents/monitor/webhooks/
 title: Webhooks - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:46:44.659718+00:00
+fetched_at: 2026-10-20T12:51:59.940760+00:00
 ---
 
 # Webhooks - Fish Audio
@@ -16,6 +16,7 @@ fetched_at: 2026-10-17T10:46:44.659718+00:00
   * Payload
   * Verify the signature
   * Delivery semantics
+    * Forward compatibility
   * Inbound call webhook
     * Request
     * Response
@@ -124,7 +125,7 @@ Webhook settings are part of the agent configuration, so they follow the draft-a
 
 Payload
 
-Every payload carries the `event` name and a `session` object with a fixed set of session facts. Note the field names differ from the [sessions API](https://docs.fish.audio/agents/monitor/conversation-history), which uses `session_id` / `started_at` / `ended_at` for the same facts. `call.ended` adds `ended_reason`; `call.analyzed` adds the `analysis` entity; `phone_call.dial_finished` adds top-level `dial_status` and `answered_by`:
+Every payload carries the `event` name and a `session` object with the session facts. Note the field names differ from the [sessions API](https://docs.fish.audio/agents/monitor/conversation-history), which uses `session_id` / `started_at` / `ended_at` for the same facts. `call.ended` adds `ended_reason`; `call.analyzed` adds the `analysis` entity; `phone_call.dial_finished` adds top-level `dial_status` and `answered_by`. The `session` object is the same on every event. The `phone_call.dial_finished` example shows it in full, the others are shortened.
 
 call.ended
 
@@ -206,6 +207,7 @@ phone_call.dial_finished
         "caller_number": "+15551234567",
         "dialed_number": "+14155550100",
         "sip_call_id": "7f3a9c@sbc.example.com",
+        "call_sid": "",
         "batch_call_id": null,
         "conversation_started_at": "2026-07-23T12:01:12Z",
         "conversation_ended_at": null,
@@ -218,7 +220,7 @@ phone_call.dial_finished
     }
     
 
-`ended_reason` is the same value as `session.end_reason` and uses the [sessions API vocabulary](https://docs.fish.audio/agents/monitor/conversation-history#status-and-end-reason): `user_hangup`, `agent_hangup`, `escalated`, `conversation_timeout`, `heartbeat_timeout`, `agent_join_timeout`, `internal_error`, or `llm_endpoint_failure`. `call.ended` is only sent for sessions in which a participant connected, so the never-connected reasons (`room_join_timeout`, `cancelled`, `dial_failed`) do not appear here; query the sessions API with `status=failed` for those. In the rare case the reason is not settled yet at delivery time, both fields are `null`. New values may be added; treat unrecognized values as informational rather than rejecting the event. `dial_status` is `answered`, `busy`, `no_answer`, or `failed`. `answered_by` is deprecated: answering-machine detection has been removed, so it is `unknown` once the call is answered and `null` before (older events may carry `human` or `voicemail`). Both facts also appear on the session, alongside `direction` (`inbound` or `outbound`) and `batch_call_id` (reserved, always `null` today); these session fields are present in every webhook payload, with the dial fields `null` on inbound sessions. The `phone_call.dial_finished` snapshot is taken when the dial resolves, so on an answered call `conversation_ended_at` and `duration_seconds` are still `null`. The final numbers arrive with `call.ended`. `caller_number`, `dialed_number` and `sip_call_id` carry the same values as on the [sessions API](https://docs.fish.audio/agents/monitor/conversation-history): the E.164 numbers of the call (person-centric on outbound calls, so `caller_number` is the party you dialed) and the SIP `Call-ID` of the call’s INVITE. All three are empty strings on web sessions, and `sip_call_id` is also empty on an unanswered outbound dial. How to use it against your carrier’s records: [Match calls with your SIP records](https://docs.fish.audio/agents/telephony/byo-sip#match-calls-with-your-sip-records). `end_user_id` and `metadata` are echoed exactly as you set them when creating the session. Use them to correlate the event with records in your own system. `branch_id` is an internal configuration-lineage identifier and is safe to ignore. What lands in `summary`, `data`, and `criteria_results` is defined by your [analysis configuration](https://docs.fish.audio/agents/monitor/post-call-analysis). The example shows a `completed` analysis. `analysis.status` can also be `skipped` (nothing to analyze: the caller never spoke, or analysis is disabled) or `error` (the run failed, with the cause in `analysis.error`); both arrive with `summary: null` and empty `data` / `criteria_results`. Check the status before reading results.
+`ended_reason` is the same value as `session.end_reason` and uses the [sessions API vocabulary](https://docs.fish.audio/agents/monitor/conversation-history#status-and-end-reason): `user_hangup`, `agent_hangup`, `escalated`, `conversation_timeout`, `heartbeat_timeout`, `agent_join_timeout`, `internal_error`, or `llm_endpoint_failure`. `call.ended` is only sent for sessions in which a participant connected, so the never-connected reasons (`room_join_timeout`, `cancelled`, `dial_failed`) do not appear here; query the sessions API with `status=failed` for those. In the rare case the reason is not settled yet at delivery time, both fields are `null`. New values may be added; treat unrecognized values as informational rather than rejecting the event. `dial_status` is `answered`, `busy`, `no_answer`, or `failed`. `answered_by` is deprecated: answering-machine detection has been removed, so it is `unknown` once the call is answered and `null` before (older events may carry `human` or `voicemail`). Both facts also appear on the session, alongside `direction` (`inbound` or `outbound`) and `batch_call_id` (reserved, always `null` today); these session fields are present in every webhook payload, with the dial fields `null` on inbound sessions. The `phone_call.dial_finished` snapshot is taken when the dial resolves, so on an answered call `conversation_ended_at` and `duration_seconds` are still `null`. The final numbers arrive with `call.ended`. `caller_number`, `dialed_number` and `sip_call_id` carry the same values as on the [sessions API](https://docs.fish.audio/agents/monitor/conversation-history): the E.164 numbers of the call (person-centric on outbound calls, so `caller_number` is the party you dialed) and the SIP `Call-ID` of the call’s INVITE. All three are empty strings on web sessions, and `sip_call_id` is also empty on an unanswered outbound dial. How to use it against your carrier’s records: [Match calls with your SIP records](https://docs.fish.audio/agents/telephony/byo-sip#match-calls-with-your-sip-records). `call_sid` is the carrier’s id of the call. Today that is Twilio’s CallSid on an inbound call through a Twilio number. It is the same value the inbound call webhook request carries, so you can join that request to the session. It is an empty string on web sessions, outbound calls, and calls through your own SIP trunk. `end_user_id` and `metadata` are echoed exactly as you set them when creating the session. Use them to correlate the event with records in your own system. `branch_id` is an internal configuration-lineage identifier and is safe to ignore. What lands in `summary`, `data`, and `criteria_results` is defined by your [analysis configuration](https://docs.fish.audio/agents/monitor/post-call-analysis). The example shows a `completed` analysis. `analysis.status` can also be `skipped` (nothing to analyze: the caller never spoke, or analysis is disabled) or `error` (the run failed, with the cause in `analysis.error`); both arrive with `summary: null` and empty `data` / `criteria_results`. Check the status before reading results.
 
 ## 
 
@@ -317,6 +319,20 @@ Endpoints are delivered in parallel and independently: each gets its own attempt
 
 [Preview calls](https://docs.fish.audio/agents/test/preview-calls) made from the Builder never trigger webhooks. To test end to end, run a real session against your published agent.
 
+### 
+
+​
+
+Forward compatibility
+
+Payloads change additively. This applies to every webhook on this page, including the inbound call webhook request.
+
+  * New fields can appear at any time, at the top level and inside `session`, `analysis` and `call`. They come without a new event name.
+  * Published fields never change name, type or meaning, and are never removed.
+  * Enum fields such as `status` and `ended_reason` can gain new values.
+
+Parse payloads without rejecting unknown fields. A receiver that validates against a strict schema breaks when a field is added. Treat an enum value you don’t recognize as a generic case instead of failing.
+
 ## 
 
 ​
@@ -368,12 +384,12 @@ call.inbound
         "dialed_number": "+14155550100",
         "agent_id": "a1b2…",
         "phone_number_id": "7e9f…",
-        "twilio_call_sid": "CA5d3a…"
+        "call_sid": "CA5d3a…"
       }
     }
     
 
-`caller_number` and `dialed_number` are E.164. `caller_number` is an empty string when the carrier withholds the caller’s number, and `twilio_call_sid` is empty when the call did not come through a Twilio number.
+`caller_number` and `dialed_number` are E.164. `caller_number` is an empty string when the carrier withholds the caller’s number, and `call_sid` is empty when the call did not come through a Twilio number. To match this request with the call, keep `call_sid`. Once the call is connected, `GET /v1/agent/sessions?call_sid=…` returns its session, and post-call webhooks carry the same value. This works only when `call_sid` is not empty, that is for calls through a Twilio number. During the call, webhook tools can send the session id with `{{system.session_id}}`. New fields can be added to this request, see Forward compatibility.
 
 ### 
 
