@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/developer-guide/self-hosting/kubernetes/
 title: Kubernetes deployment - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:47:38.235953+00:00
+fetched_at: 2026-10-21T13:05:09.623669+00:00
 ---
 
 # Kubernetes deployment - Fish Audio
@@ -64,10 +64,10 @@ What you decide before installing
 Decision| Notes  
 ---|---  
 Namespace| `fish-audio` is the supported default. A different one only needs Helm’s `--namespace` argument.  
-Shared storage path| Mounted at the same path on **every** node. See [Requirements](https://docs.fish.audio/developer-guide/self-hosting/requirements#shared-storage).  
+Shared storage path| Mounted at the same path on **every** node. See [Requirements](https://docs.fish.audio/developer-guide/self-hosting/requirements#helm-kubernetes).  
 GPU scheduling| Tolerations and node selectors, if your GPU nodes are tainted or you run more than one GPU model.  
 Metrics| The chart exposes Prometheus annotations and creates no ServiceMonitors, so an annotation-scraping Prometheus works as-is and kube-prometheus-stack needs a scrape config.  
-Reference voices| Requests carrying a `reference_id` resolve from a local archive, never from the network. One zip per voice, staged on shared storage before that traffic starts.  
+Reference voices| Requests carrying a `reference_id` resolve from a local archive, never from the network. One zip per voice on shared storage, staged by you or by the optional voice sync before that traffic starts.  
 Replica counts| Talk to your account team first. The shipped shape is what the delivery was sized and validated against.  
   
 Three Kubernetes Secrets have to exist before the install: registry credentials, the license bundle, and one shared between the in-cluster model store and the workers that read from it (with an external model source, that secret instead carries the real access keys for the storage — the runbook covers it). The license bundle is the certificate and key pair downloaded from **Developer → Self Host** ; the services that enforce it stay down until the Secret exists, and refuse requests once the certificate lapses — renewal is described in [Operations](https://docs.fish.audio/developer-guide/self-hosting/operations#license-renewal). The model-store secret authenticates nothing outside the cluster, so the value is yours to choose. For production, prefer External Secrets, Sealed Secrets, or your cloud secret manager over plain Secrets.

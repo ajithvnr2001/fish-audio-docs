@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/developer-guide/self-hosting/air-gapped/
 title: Air-gapped deployments - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:47:37.147056+00:00
+fetched_at: 2026-10-21T13:05:09.762190+00:00
 ---
 
 # Air-gapped deployments - Fish Audio
@@ -28,7 +28,7 @@ Running Fish Audio Enterprise on a network that cannot reach Fish Audio at all
 
 Copy pageCopy page
 
-Both offline modes make no outbound calls at runtime. Neither one, however, installs itself out of thin air: a Helm install pulls container images and the chart from a registry, and the appliance needs its image on the host. An air-gapped deployment is about getting those artifacts across the boundary. The license bundle has to cross it too, and unlike an image it expires — plan a recurring transfer, not a one-off.
+Both offline modes make no outbound calls at runtime. Neither one, however, installs itself out of thin air: a Helm install pulls container images and the chart from a registry, and the appliance needs its image on the host. An air-gapped deployment is about getting those artifacts across the boundary. The license bundle has to cross it too, and unlike an image it expires — plan a recurring transfer, not a one-off. The reference voices you use have to cross too, copied in as archives: voice sync cannot reach Fish Audio from there.
 
 Fish Audio does this with you as part of an air-gapped delivery, and the step-by-step procedure is in the deployment runbook for the version you install. See [Releases](https://docs.fish.audio/developer-guide/self-hosting/enterprise-releases). This page is what to expect and what to plan for.
 
@@ -38,7 +38,7 @@ Fish Audio does this with you as part of an air-gapped delivery, and the step-by
 
 Which one to choose
 
-**The air-gapped All-in-One appliance** is the straightforward answer to a strict air gap: one image, moved to the disconnected host as a file and loaded there. Beyond the image, only the license bundle — and, in the external-weights modes, the weight fileset — has to be carried across. Its online counterpart cannot run air gapped: it authorises every request against Fish Audio. **The Helm chart** is more work, because the release is many images rather than one. Every image has to be mirrored into a registry the cluster can reach and the release pointed at it, component by component. Plan for the whole set, and expect to do it with your account team rather than alone. **What you give up either way:** images are pinned to the exact content Fish Audio published, so a deployment cannot quietly run anything else. Copying an image into another registry drops that pin, so check what you mirrored while both sides are still there to compare.
+**The air-gapped All-in-One appliance** is the straightforward answer to a strict air gap: one image, moved to the disconnected host as a file and loaded there. Beyond the image, the license bundle — and, in the external-weights modes, the weight fileset — has to be carried across. Its online counterpart cannot run air gapped: it authorises every request against Fish Audio. **The Helm chart** is more work, because the release is many images rather than one. Every image has to be mirrored into a registry the cluster can reach and the release pointed at it, component by component. Plan for the whole set, and expect to do it with your account team rather than alone. **What you give up either way:** images are pinned to the exact content Fish Audio published, so a deployment cannot quietly run anything else. Copying an image into another registry drops that pin, so check what you mirrored while both sides are still there to compare.
 
 ## 
 

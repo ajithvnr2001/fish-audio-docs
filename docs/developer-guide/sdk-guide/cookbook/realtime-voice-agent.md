@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/developer-guide/sdk-guide/cookbook/realtime-voice-agent/
 title: Build a realtime voice agent: streaming speech in, reply, speech out - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-20T12:51:59.396669+00:00
+fetched_at: 2026-10-21T13:05:10.945526+00:00
 ---
 
 # Build a realtime voice agent: streaming speech in, reply, speech out - Fish Audio
@@ -37,6 +37,8 @@ Use realtime speech to text to know when the user has finished, start replies ea
 Copy pageCopy page
 
 This guide is for building your own voice agent on the realtime speech-to-text API. To have Fish Audio run the whole agent for you, see [Agents](https://docs.fish.audio/agents/overview).
+
+`transcribe-stream-1` is in preview.
 
 ## 
 

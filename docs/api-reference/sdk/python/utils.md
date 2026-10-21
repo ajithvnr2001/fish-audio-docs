@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/api-reference/sdk/python/utils/
 title: Utils - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-20T12:52:00.228766+00:00
+fetched_at: 2026-10-21T13:05:10.642943+00:00
 ---
 
 # Utils - Fish Audio

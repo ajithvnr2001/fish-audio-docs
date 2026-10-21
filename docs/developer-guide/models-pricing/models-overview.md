@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/developer-guide/models-pricing/models-overview/
 title: Models Overview - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-20T12:52:00.138532+00:00
+fetched_at: 2026-10-21T13:05:10.480486+00:00
 ---
 
 # Models Overview - Fish Audio
@@ -138,7 +138,7 @@ Model| Capabilities
 ---|---  
 `transcribe-1-pro` (recommended)| Anything from short clips to long recordings (up to 60 minutes), including multi-speaker conversations. Speaker markers in `text`, structured `speaker_turns` with start and end times, speaker-count hints, and inline emotion and vocal-event cues such as `[高兴]` (happy) and `[laughter]` (optional via `tag_audio_events`). Supports optional timestamps.  
 `transcribe-1`| General transcription of short recordings, with optional timestamps. Serves requests whose `model` header is missing or not an exact match.  
-`transcribe-stream-1`| Live audio streamed over the [realtime WebSocket](https://docs.fish.audio/features/speech-to-text/realtime), transcribed turn by turn while people speak. Turn detection for voice agents (eager end of turn, backchannel detection and background awareness), live drafts, conversation context, speaker tags and sound tags. Sessions up to 60 minutes.  
+`transcribe-stream-1` (Preview)| Live audio streamed over the [realtime WebSocket](https://docs.fish.audio/features/speech-to-text/realtime), transcribed turn by turn while people speak. Turn detection for voice agents (eager end of turn, backchannel detection and background awareness), live drafts, conversation context, speaker tags and sound tags. Sessions up to 60 minutes.  
   
 Pro labels speakers with inline `<|speaker:N|>` markers in `text`, alongside emotion cues. A label identifies the same speaker within one response only. When you request timestamps (`ignore_timestamps=false`), Pro also returns `speaker_turns`, a structured list of turns with each turn’s speaker, text, and start and end times, unless you send `diarize=false`. Timestamped `segments` are word-level, contain spoken words without these markers, and do not expose per-segment speaker IDs. See the [multi-speaker response example](https://docs.fish.audio/features/speech-to-text#multi-speaker-conversations) and [Speaker turns](https://docs.fish.audio/features/speech-to-text#speaker-turns). Pro has its own optional request fields: `tag_audio_events`, `diarize`, and the speaker-count hints `num_speakers`, `min_speakers`, and `max_speakers`. Speaker-count hints are applied on a best-effort basis and may have no effect on short recordings. For supported audio formats, file size, and length, see [Input audio](https://docs.fish.audio/features/speech-to-text#input-audio) and [Limits](https://docs.fish.audio/features/speech-to-text#limits). For costs, see [ASR pricing](https://docs.fish.audio/developer-guide/models-pricing/pricing-and-rate-limits#automatic-speech-recognition-asr-models).
 

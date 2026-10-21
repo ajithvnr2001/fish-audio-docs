@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/developer-guide/self-hosting/registry-access/
 title: Registry & license - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:47:38.608541+00:00
+fetched_at: 2026-10-21T13:05:09.824381+00:00
 ---
 
 # Registry & license - Fish Audio
@@ -38,12 +38,13 @@ Self-hosted images, charts, and documentation are distributed from a private Fis
 
 The Self Host page
 
-Sign in to fish.audio and open **Developer → Self Host**. The page opens with **Before you start** — the platforms and modes your team is granted, with the prerequisites it checks. If it is empty, or reports that self-host deployment is not enabled, contact your account manager. Then four steps:
+Sign in to fish.audio and open **Developer → Self Host**. The page opens with **Before you start** — the platforms and modes your team is granted, with the prerequisites it checks. If it is empty, or reports that self-host deployment is not enabled, contact your account manager. Then five steps:
 
   1. **Deploy token** — create the credential the install commands authenticate with.
   2. **Sign in** — one registry login with that token.
   3. **License** — download the certificate and key bundle the deployment needs before it will serve, at first install and at every renewal. Some contracts bind it to specific GPUs — have the card UUIDs ready when you request it.
   4. **Install** — pick your mode and version; the download commands are built for your team, with the registry host, artifact references, and the version you pick already filled in. The same step downloads the **deployment guide** for that version — the runbook or guide the other pages here refer to. See [Releases](https://docs.fish.audio/developer-guide/self-hosting/enterprise-releases) for how versions work.
+  5. **Test voices** — get your team’s voices and Fish Audio’s official voices onto the deployment, by voice sync or by hand, then make a request with one to confirm it works.
 
 
 

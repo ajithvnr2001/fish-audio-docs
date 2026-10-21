@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/developer-guide/self-hosting/all-in-one/
 title: All-in-One container - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:47:37.502533+00:00
+fetched_at: 2026-10-21T13:05:09.659692+00:00
 ---
 
 # All-in-One container - Fish Audio
@@ -47,7 +47,7 @@ The appliance runs one inference worker and one vocoder — a GPU each; the Sing
 
 What running it involves
 
-One `docker run` on a host that meets the [All-in-One host requirements](https://docs.fish.audio/developer-guide/self-hosting/requirements#all-in-one-docker). It needs:
+One `docker run` on a host that meets the [requirements](https://docs.fish.audio/developer-guide/self-hosting/requirements). It needs:
 
   * **Two GPUs** — one for the inference worker, one for the vocoder. The Single-GPU mode is a special case: one H100-class 80 GB card shared by both, with lower throughput.
   * **One exposed port** for the API.
@@ -75,7 +75,7 @@ Backups and reconciliation: [Offline usage accounting](https://docs.fish.audio/d
 
 Capacity
 
-The single worker admits a bounded number of in-flight requests; beyond that, requests queue and time-to-first-audio climbs. The ceiling is set by the worker’s key-value cache VRAM, so larger cards support a higher cap. It is adjustable at launch without rebuilding the image. Validate latency and error rate at any new value before committing to it. Reference-id requests resolve only from local archives placed on the volume, one zip per voice.
+The single worker admits a bounded number of in-flight requests; beyond that, requests queue and time-to-first-audio climbs. The ceiling is set by the worker’s key-value cache VRAM, so larger cards support a higher cap. It is adjustable at launch without rebuilding the image. Validate latency and error rate at any new value before committing to it. Reference-id requests resolve only from local archives on the volume, one zip per voice, placed by you or by the optional voice sync.
 
 ## 
 
@@ -83,7 +83,7 @@ The single worker admits a bounded number of in-flight requests; beyond that, re
 
 Next steps
 
-  * [Requirements](https://docs.fish.audio/developer-guide/self-hosting/requirements#all-in-one-docker): host baseline
+  * [Requirements](https://docs.fish.audio/developer-guide/self-hosting/requirements): host baseline
   * [Registry & license](https://docs.fish.audio/developer-guide/self-hosting/registry-access): how your team gets the image
   * [Air-gapped deployments](https://docs.fish.audio/developer-guide/self-hosting/air-gapped): moving the image to a disconnected host
 

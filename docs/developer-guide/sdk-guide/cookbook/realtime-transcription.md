@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/developer-guide/sdk-guide/cookbook/realtime-transcription/
 title: Transcribe a live audio stream in realtime - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-20T12:51:59.202048+00:00
+fetched_at: 2026-10-21T13:05:11.213451+00:00
 ---
 
 # Transcribe a live audio stream in realtime - Fish Audio
@@ -28,6 +28,8 @@ Copy pageCopy page
 Stream audio to transcribe-stream-1 over a WebSocket and print drafts, turn events and final transcripts as they arrive
 
 Copy pageCopy page
+
+`transcribe-stream-1` is in preview.
 
 ## 
 

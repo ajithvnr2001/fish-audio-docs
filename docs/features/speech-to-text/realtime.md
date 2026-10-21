@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/features/speech-to-text/realtime/
 title: Realtime Speech to Text - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-20T12:51:59.448185+00:00
+fetched_at: 2026-10-21T13:05:10.999367+00:00
 ---
 
 # Realtime Speech to Text - Fish Audio
@@ -45,6 +45,8 @@ Copy pageCopy page
 
 Stream live audio over a WebSocket and get the transcript turn by turn while people speak. `transcribe-stream-1` does more than transcribe: it decides when the user has finished their turn, usually tells the user talking to your app apart from background sound, and notices when a “mm-hm” is only an acknowledgement. This helps your voice agent decide when to answer, when to keep talking and when to stop. Connect to `wss://api.fish.audio/v1/asr/realtime`, send audio as you capture it, and read the events the server sends back.
 
+`transcribe-stream-1` is in preview.
+
 ## API reference
 
 Every message, field, error and limit.
@@ -83,7 +85,7 @@ To transcribe a recording you already have, use [`POST /v1/asr`](https://docs.fi
 
 | Realtime (`/v1/asr/realtime`)| File (`POST /v1/asr`)  
 ---|---|---  
-Model| `transcribe-stream-1`| `transcribe-1-pro`  
+Model| `transcribe-stream-1` (Preview)| `transcribe-1-pro`  
 Input| Live 16-bit PCM over a WebSocket| A complete audio file (WAV, MP3, Opus, and more)  
 Output| Events per turn: drafts, turn signals and the final transcript| One transcript, with optional timestamps and speaker turns  
 Turn detection| Yes| No  

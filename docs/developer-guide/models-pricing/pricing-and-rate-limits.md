@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/developer-guide/models-pricing/pricing-and-rate-limits/
 title: Pricing & Rate Limits - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-20T12:52:00.177820+00:00
+fetched_at: 2026-10-21T13:05:10.358889+00:00
 ---
 
 # Pricing & Rate Limits - Fish Audio
@@ -69,7 +69,7 @@ Model Name| Price (USD)
 ---|---  
 `transcribe-1-pro` (recommended)| $0.36 / audio hour  
 `transcribe-1`| $0.36 / audio hour  
-`transcribe-stream-1` (Realtime ASR)| $0.36 / session hour  
+`transcribe-stream-1` (Realtime ASR, Preview)| $0.36 / session hour  
   
 For recordings, we recommend `transcribe-1-pro`, which handles multi-speaker conversations (speaker markers and speaker turns), long recordings, and inline emotion cues. Both file models cost the same and use the [Speech to Text API](https://docs.fish.audio/api-reference/endpoint/openapi-v1/speech-to-text). Send the `model: transcribe-1-pro` HTTP header to select Pro; a request whose `model` header is missing or not an exact match is served and billed as `transcribe-1`. See the [model comparison](https://docs.fish.audio/features/speech-to-text#choose-an-asr-model). `transcribe-stream-1` transcribes live audio over the [realtime WebSocket](https://docs.fish.audio/features/speech-to-text/realtime) and is billed as its own line item, Realtime ASR, separate from file transcription. **How ASR billing works for files (`transcribe-1-pro`, `transcribe-1`):**
 

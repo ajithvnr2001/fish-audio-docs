@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/api-reference/endpoint/websocket/asr-realtime/
 title: WebSocket Realtime Speech to Text - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-20T12:51:59.787150+00:00
+fetched_at: 2026-10-21T13:05:10.064977+00:00
 ---
 
 # WebSocket Realtime Speech to Text - Fish Audio
@@ -320,6 +320,8 @@ realtime
 
 Connect to `wss://api.fish.audio/v1/asr/realtime` with a WebSocket client. Every message in both directions is one MessagePack map in a binary frame. A normal HTTP GET request does not start a session. For an introduction, see [Realtime Speech to Text](https://docs.fish.audio/features/speech-to-text/realtime).
 
+`transcribe-stream-1` is in preview.
+
 ## 
 
 ​
@@ -343,7 +345,7 @@ Connect
 Header| Required| Description  
 ---|---|---  
 `Authorization`| Yes| `Bearer <API key>`. Write the scheme exactly as `Bearer`, followed by a space and the key.  
-`model`| No| `transcribe-stream-1`, the default and the only realtime model. The legacy name `transcribe-1-pro-realtime` reaches the same model.  
+`model`| No| `transcribe-stream-1` (Preview), the default and the only realtime model. The legacy name `transcribe-1-pro-realtime` reaches the same model.  
   
 Each open connection counts against the same concurrency limit as your other API requests, from the moment it opens until it closes, even while you send no audio. See [Concurrent request limits](https://docs.fish.audio/developer-guide/models-pricing/pricing-and-rate-limits#concurrent-request-limits). A session cannot be resumed: a new connection is a new session. Sessions are billed per second of session duration, as Realtime ASR. See [ASR pricing](https://docs.fish.audio/developer-guide/models-pricing/pricing-and-rate-limits#automatic-speech-recognition-asr-models). If the server refuses the upgrade, it answers with a plain HTTP response whose JSON body is `{"status": <int>, "message": <str>}`:
 
@@ -1289,7 +1291,7 @@ model
 
 type:enum
 
-Realtime speech-to-text model. Optional; `transcribe-stream-1` is the default and the only realtime model. The legacy name `transcribe-1-pro-realtime` reaches the same model.
+Realtime speech-to-text model. Optional; `transcribe-stream-1` (Preview) is the default and the only realtime model. The legacy name `transcribe-1-pro-realtime` reaches the same model.
 
 Available options: `transcribe-stream-1`
 

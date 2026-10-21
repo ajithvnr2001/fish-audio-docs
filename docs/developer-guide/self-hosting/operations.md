@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/developer-guide/self-hosting/operations/
 title: Operations - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-17T10:47:38.432300+00:00
+fetched_at: 2026-10-21T13:05:09.793997+00:00
 ---
 
 # Operations - Fish Audio
@@ -86,7 +86,7 @@ Backup and retention
 
 Back up:
 
-  * Reference voice archives, if your traffic uses reference ids. In a self-hosted deployment these are durable data, not cache. Nothing can re-download them.
+  * Reference voice archives, if your traffic uses reference ids. In a self-hosted deployment these are durable data, not cache.
   * The offline usage ledger directories, before they are pruned by your own archival process.
   * The values file used for the production release.
   * Secret manager entries.
