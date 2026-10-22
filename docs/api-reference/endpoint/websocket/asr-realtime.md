@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/api-reference/endpoint/websocket/asr-realtime/
 title: WebSocket Realtime Speech to Text - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-21T13:05:10.064977+00:00
+fetched_at: 2026-10-22T13:06:34.733474+00:00
 ---
 
 # WebSocket Realtime Speech to Text - Fish Audio
@@ -158,6 +158,7 @@ Draft Transcript
       "seq": 4,  
       "turn_index": 0,  
       "text": "what's the weather like",  
+      "settled_text": "",  
       "language": "English",  
       "language_code": "en",  
       "audio_ms": 1800,  
@@ -663,11 +664,20 @@ Field| Type| Description
 ---|---|---  
 `turn_index`| integer| The turn.  
 `text`| string| The whole turn so far. Not final.  
+`settled_text`| string| The beginning of `text` that the server is confident will not change. Can be empty. See Settled text.  
 `language`| string| Optional. The language’s English name. See Language.  
 `language_code`| string| Optional. ISO 639-1 code. See Language.  
 `audio_ms`| integer| The audio position the draft covers up to.  
   
 Each draft **replaces** the previous one for the turn. Drafts are best effort, sent at most every `draft_interval_ms`, and only with `results.drafts: true`. Turn them on for live captions; an agent that acts on `eager_end_of_turn` and `committed` does not need them. Drafts may pause during long background sounds and resume when `user_turn_taken` comes.
+
+#### 
+
+​
+
+Settled text
+
+`settled_text` is the beginning of the draft’s `text` that the server is confident will not change. The draft’s `text` always starts with it. The server extends it only when it is confident, so it trails `text` and is often empty, especially early in a turn and in short turns. Within a turn, `settled_text` normally only grows. Occasionally the server revises it, and a later draft’s `settled_text` is shorter or empty. Always render from the latest draft. For live captions or live translation, treat `settled_text` as stable and the rest of `text` as tentative. The rest can start with a space. `eager_end_of_turn` and `committed` usually begin with the last `settled_text` sent before them, but not always: take the final text from `committed`.
 
 ### 
 
@@ -818,6 +828,7 @@ Guarantees
   * A turn has at most one `eager_end_of_turn` that no `turn_resumed` follows. If it has one, `committed.text` and `committed.language_code` equal its own.
   * `user_turn` is true exactly when `turn_kind` is `"user"`.
   * `user_backchannel` comes only in `auto` mode, while your agent is speaking, and before its turn’s `committed`.
+  * Every `draft` has `settled_text`, possibly empty, and the draft’s `text` starts with it.
   * `language` and `language_code` are both present or both absent.
   * `committed.words` is present exactly when `ignore_timestamps` was `false` when the turn opened and the commit is not degraded.
 
@@ -930,10 +941,10 @@ A session in `auto` mode with eager end of turn, drafts and word timings. `C` is
     S → session_started {seq: 0, session_id: "s_ab12…", request_id: "…", config: {…}, limits: {…}}
     C → audio {data: <bin>} …
     S → speech_start {seq: 1, turn_index: 0, audio_ms: 300}
-    S → draft {seq: 2, turn_index: 0, text: "what's the", audio_ms: 900, …}
+    S → draft {seq: 2, turn_index: 0, text: "what's the", settled_text: "", audio_ms: 900, …}
     S → user_turn_taken {seq: 3, turn_index: 0, audio_ms: 1280}
-    S → draft {seq: 4, turn_index: 0, text: "what's the weather like", language: "English",
-               language_code: "en", audio_ms: 1800, …}
+    S → draft {seq: 4, turn_index: 0, text: "what's the weather like", settled_text: "",
+               language: "English", language_code: "en", audio_ms: 1800, …}
     S → eager_end_of_turn {seq: 5, turn_index: 0, text: "What's the weather like?",
                            language: "English", language_code: "en", audio_ms: 2240}
     S → committed {seq: 6, turn_index: 0, text: "What's the weather like?", words: […],
@@ -955,7 +966,7 @@ A session in `auto` mode with eager end of turn, drafts and word timings. `C` is
         close 1000
     
 
-Turn 0 is the user’s turn. The agent prepared its reply on `eager_end_of_turn`; once the turn commits, it starts playing the reply and sends `agent_speaking: true`. The first draft has no language: “what’s the” is too short to tell. Turn 1 is the user saying “mm-hm” while the agent speaks: the server sends `user_backchannel`, so the agent keeps talking, and the turn commits as a non-user turn that is not added to the context. When the reply has played out, the agent sends `agent_speaking: false`. Turn 2 is a non-user turn, a sound such as a cough: the agent ignores it.
+Turn 0 is the user’s turn. The agent prepared its reply on `eager_end_of_turn`; once the turn commits, it starts playing the reply and sends `agent_speaking: true`. The first draft has no language: “what’s the” is too short to tell. Both drafts have an empty `settled_text`, as is usual early in a turn. Turn 1 is the user saying “mm-hm” while the agent speaks: the server sends `user_backchannel`, so the agent keeps talking, and the turn commits as a non-user turn that is not added to the context. When the reply has played out, the agent sends `agent_speaking: false`. Turn 2 is a non-user turn, a sound such as a cough: the agent ignores it.
 
 ## 
 
@@ -1131,6 +1142,7 @@ Draft Transcript
       "seq": 4,  
       "turn_index": 0,  
       "text": "what's the weather like",  
+      "settled_text": "",  
       "language": "English",  
       "language_code": "en",  
       "audio_ms": 1800,  
@@ -1391,9 +1403,9 @@ Draft Transcript
 
 type:object
 
-show 10 properties
+show 11 properties
 
-Live draft of the open turn, with `results.drafts: true`. Best effort, at most every `draft_interval_ms`.
+Live draft of the open turn, with `results.drafts: true`. Best effort, at most every `draft_interval_ms`. For live captions, show `settled_text` as stable and the rest of `text` as tentative; take the final text from `committed`.
 
 Eager End of Turn
 

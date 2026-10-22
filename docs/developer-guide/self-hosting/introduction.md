@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/developer-guide/self-hosting/introduction/
 title: Introduction - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-21T13:05:09.703489+00:00
+fetched_at: 2026-10-22T13:06:34.823815+00:00
 ---
 
 # Introduction - Fish Audio
@@ -79,11 +79,11 @@ Capability| Online Helm| Offline Helm| All-in-One (all modes)
 Text to speech over `POST /v1/tts`| Included| Included| Included  
 WebSocket streaming| Included| Included| Included  
 Reference-voice requests (`reference_id`)| From local archives| From local archives| From local archives  
-Word and segment timestamps| Optional, needs an extra GPU| Not included| Not included  
+Word and segment timestamps| Optional, needs an extra GPU| Optional, needs an extra GPU| Not included  
 Horizontal scaling and autoscaling| Included| Included| Not included  
-Prometheus metrics| Included| Included| Container logs only  
+Prometheus metrics| Included| Included| Edge API only, at `/metrics`  
   
-Timestamp alignment is served by a separate forced-aligner component. It is disabled by default, is not part of the offline model bundle, and is not built into the All-in-One image, so `/v1/tts/stream/with-timestamp` returns audio without alignment data in those modes. Contact Fish Audio if your deployment needs timestamps.
+Timestamp alignment is served by a separate forced-aligner component. It is disabled by default and is not built into the All-in-One image, so `/v1/tts/stream/with-timestamp` returns audio without alignment data there. Offline Helm needs its model staged on shared storage first; the deployment runbook has the step. Contact Fish Audio if your deployment needs timestamps.
 
 Reference voices are resolved from local archives, which you stage yourself or the optional voice sync downloads: your team’s own fish.audio voices and Fish Audio’s official voices. A self-hosted deployment never reads from the hosted voice library at request time. Products other than text to speech are hosted-only unless your agreement says otherwise.
 

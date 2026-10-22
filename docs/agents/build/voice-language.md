@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/agents/build/voice-language/
 title: Voice & Language - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-18T12:09:26.957216+00:00
+fetched_at: 2026-10-22T13:06:34.802304+00:00
 ---
 
 # Voice & Language - Fish Audio
@@ -201,6 +201,7 @@ Speech recognition model
 Value| Model| Latency| Notes  
 ---|---|---|---  
 `deepgram:nova-3`| Deepgram Nova-3| ≈0.4 s| Default. Mid-call language switching covers English, Spanish, French, German, Hindi, Russian, Portuguese, Japanese, Italian, and Dutch.  
+`fish_audio:transcribe-stream-1`| Fish Transcribe Stream 1 (Preview)| ≈0.6 s| Fish Audio’s own [realtime recognition](https://docs.fish.audio/features/speech-to-text/realtime). It also decides when the caller has finished speaking and whether an overlap is an interruption or only an acknowledgement. Follows whichever language the caller speaks. Keyterms longer than 32 characters are ignored.  
 `elevenlabs:scribe_v2_realtime`| ElevenLabs Scribe v2 Realtime| ≈0.9 s| Keyterms longer than 20 characters are ignored.  
 `elevenlabs:scribe_v2_medical`| ElevenLabs Scribe v2 Medical| ≈1.5 s| Tuned for clinical speech: medication names, anatomy, and pathology terms. Keyterms longer than 50 characters are ignored.  
   
@@ -242,7 +243,7 @@ API (curl)
       }'
     
 
-Which languages a caller can switch between depends on the speech recognition model. With Deepgram Nova-3, a speaking language outside its switching set stays locked even with the setting on. With ElevenLabs Scribe v2, turning the setting off steers recognition toward the speaking language rather than locking it. To lock it, use strict language.
+Which languages a caller can switch between depends on the speech recognition model. With Deepgram Nova-3, a speaking language outside its switching set stays locked even with the setting on. With ElevenLabs Scribe v2, turning the setting off steers recognition toward the speaking language rather than locking it. With Fish Transcribe Stream 1, recognition follows whichever language the caller speaks, so the setting has no effect. To lock it, use strict language.
 
 ## 
 
@@ -265,7 +266,7 @@ API (curl)
       }'
     
 
-With the ElevenLabs Scribe v2 models, speech in another language reaches the agent as `[unintelligible speech]`. With Deepgram Nova-3, recognition runs a model for the speaking language only, so speech in another language is usually not transcribed at all and the agent keeps listening.
+With the ElevenLabs Scribe v2 models and Fish Transcribe Stream 1, speech in another language reaches the agent as `[unintelligible speech]`. With Deepgram Nova-3, recognition runs a model for the speaking language only, so speech in another language is usually not transcribed at all and the agent keeps listening.
 
 Language is detected per utterance, so a short or heavily accented phrase in the speaking language can occasionally be detected as another language and replaced with `[unintelligible speech]` too. Only turn on strict language when you explicitly need to stop the agent from understanding other languages.
 

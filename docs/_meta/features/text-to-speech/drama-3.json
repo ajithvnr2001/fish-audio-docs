@@ -3,8 +3,5 @@
   "file": "features/text-to-speech/drama-3.md",
   "title": "Drama 3 - Fish Audio",
   "method": "scrapling+scrapegraph",
-  "fetched_at": "2026-10-17T10:47:40.320741+00:00",
-  "html_len": 381056,
-  "md_len": 7791,
-  "depth": 0
+  "fetched_at": "2026-10-22T13:06:34.864193+00:00"
 }

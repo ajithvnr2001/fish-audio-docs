@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/developer-guide/models-pricing/pricing-and-rate-limits/
 title: Pricing & Rate Limits - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-21T13:05:10.358889+00:00
+fetched_at: 2026-10-22T13:06:34.842627+00:00
 ---
 
 # Pricing & Rate Limits - Fish Audio
@@ -50,6 +50,7 @@ TTS pricing is based on the size of input text, measured in millions of UTF-8 by
 
 Model Name| Price (USD)  
 ---|---  
+`drama-3`| $50.00 / M UTF-8 bytes  
 `s2.1-pro`| $15.00 / M UTF-8 bytes  
 `s2.1-pro-free`| $0.00 / M UTF-8 bytes  
 `s2-pro`| $15.00 / M UTF-8 bytes  
@@ -57,7 +58,7 @@ Model Name| Price (USD)
   
 1M UTF-8 bytes is approximately 180,000 English words, or about 12 hours of speech
 
-S1 is deprecated and will be retired on December 31, 2026. After that date, requests that specify `s1` are served by `s2.1-pro` and billed as `s2.1-pro`, at the same price. See [Migrate from S1](https://docs.fish.audio/developer-guide/models-pricing/migrate-from-s1).
+Until November 12, 2026, 09:00 PT (17:00 UTC), `drama-3` is billed at a launch promotion price of $10.00 / M UTF-8 bytes, 80% off the list price above. See [Drama 3](https://docs.fish.audio/features/text-to-speech/drama-3). S1 is deprecated and will be retired on December 31, 2026. After that date, requests that specify `s1` are served by `s2.1-pro` and billed as `s2.1-pro`, at the same price. See [Migrate from S1](https://docs.fish.audio/developer-guide/models-pricing/migrate-from-s1).
 
 ### 
 

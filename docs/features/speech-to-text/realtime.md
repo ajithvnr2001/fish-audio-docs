@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/features/speech-to-text/realtime/
 title: Realtime Speech to Text - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-21T13:05:10.999367+00:00
+fetched_at: 2026-10-22T13:06:35.296932+00:00
 ---
 
 # Realtime Speech to Text - Fish Audio
@@ -161,7 +161,7 @@ Audio is divided into turns. A turn opens when voice activity begins (`speech_st
       speech_start → draft … → committed (user_turn: false, turn_kind: "other")
     
 
-  * `draft`: the turn’s text so far. Drafts come in every kind of turn, so a draft does not mean the user is talking.
+  * `draft`: the turn’s text so far. Drafts come in every kind of turn, so a draft does not mean the user is talking. A draft’s [`settled_text`](https://docs.fish.audio/api-reference/endpoint/websocket/asr-realtime#settled-text) is the beginning of its text that the server is confident will not change, so live captions can show it as stable.
   * `user_turn_taken`: the server judged that the user is taking their turn.
   * `user_backchannel`: while your agent is speaking (see Backchannel detection), the user only acknowledged; keep talking. If the user goes on to take the turn, `user_turn_taken` follows, and the turn that holds the acknowledgement is the user’s. That can be a new turn, with its own `speech_start`.
   * `eager_end_of_turn`: the turn has probably ended; its text equals the final transcript unless `turn_resumed` follows. Only the user’s turns get it, and not every one does.

@@ -2,7 +2,7 @@
 url: https://docs.fish.audio/api-reference/sdk/python/types/
 title: Types - Fish Audio
 method: scrapling+scrapegraph
-fetched_at: 2026-10-21T13:05:10.601080+00:00
+fetched_at: 2026-10-22T13:06:34.400919+00:00
 ---
 
 # Types - Fish Audio
